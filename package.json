@@ -3,16 +3,58 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev:windows": "npx env-cmd -x next dev -p $PORT",
+    "dev": "npx env-cmd -x next dev -p '$PORT'",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "npx env-cmd -x next start -p '$PORT'",
+    "lint": "next lint",
+    "prettier-all": "npx prettier --config .prettierrc --write ./src",
+    "fix": "npx eslint --fix ./src --ext .js --ext .jsx",
+    "dependencies-upgrade": "yarn yarn-upgrade-all"
   },
   "dependencies": {
-    "eslint": "8.45.0",
-    "eslint-config-next": "13.4.11",
-    "next": "13.4.11",
-    "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "@ant-design/icons": "^5.1.4",
+    "@slider-captcha/core": "^1.0.1",
+    "@slider-captcha/react": "^1.0.0",
+    "ajv": "^8.12.0",
+    "antd": "^5.7.2",
+    "axios": "^1.4.0",
+    "case": "^1.6.3",
+    "crypto-js": "^4.1.1",
+    "dayjs": "^1.11.9",
+    "eslint": "^8.45.0",
+    "eslint-config-next": "^13.4.11",
+    "iron-session": "^6.3.1",
+    "lodash": "^4.17.21",
+    "lowdb": "^6.0.1",
+    "lru-cache": "^10.0.0",
+    "next": "^13.4.11",
+    "pdfmake": "^0.2.7",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-json-view": "^1.21.3",
+    "react-quill": "^2.0.0",
+    "use-media-antd-query": "^1.1.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@ant-design/cssinjs": "^1.13.2",
+    "axios-mock-adapter": "^1.21.5",
+    "env-cmd": "^10.1.0",
+    "eslint": "^8.44.0",
+    "eslint-config-next": "^13.4.9",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-unicorn": "^48.0.0",
+    "eslint-plugin-unused-imports": "^3.0.0",
+    "prettier": "^3.0.0",
+    "yarn-upgrade-all": "^0.7.2"
+  },
+  "yarn-upgrade-all": {
+    "ignore": [
+      "react",
+      "react-dom",
+      "next"
+    ]
   }
 }
