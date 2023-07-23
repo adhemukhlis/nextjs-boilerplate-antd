@@ -32,9 +32,7 @@ const RegisterPage = () => {
 						<Space>
 							{res.data.message}
 							<Link href="/login">
-								<Button type="primary">
-									Login Now!
-								</Button>
+								<Button type="primary">Login Now!</Button>
 							</Link>
 						</Space>,
 						5

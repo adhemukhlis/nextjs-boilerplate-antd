@@ -11,4 +11,3 @@ const randomStringGenerator = () => {
 	return result
 }
 export default randomStringGenerator
- 

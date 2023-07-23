@@ -28,7 +28,6 @@ const Index = ({ username }) => {
 				<span>
 					{'Account : '}
 					<Text strong>{username}</Text>
-			
 				</span>
 			</div>
 			{/* <ResponsiveContainer width="100%" height="100%">
