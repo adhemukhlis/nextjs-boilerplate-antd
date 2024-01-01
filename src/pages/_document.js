@@ -1,6 +1,6 @@
-import Document, { Head, Html, Main, NextScript } from 'next/document'
 import { StyleProvider, createCache, extractStyle } from '@ant-design/cssinjs'
 import getConfig from 'next/config'
+import Document, { Head, Html, Main, NextScript } from 'next/document'
 const { publicRuntimeConfig } = getConfig()
 export default class MyDocument extends Document {
 	static async getInitialProps(ctx) {

@@ -1,4 +1,4 @@
-import { DatabaseOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, DatabaseOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
 import validateMenu from '@/utils/validate-menu'
 
 /**
@@ -18,6 +18,17 @@ const menus = (authMenu) =>
 						// permission_code: 'users',
 						label: 'Users',
 						icon: <UserOutlined />
+					}
+				]
+			},
+			{
+				key: '/components',
+				label: 'Components',
+				icon: <AppstoreOutlined />,
+				children: [
+					{
+						key: '/components/forms',
+						label: 'Forms'
 					}
 				]
 			},

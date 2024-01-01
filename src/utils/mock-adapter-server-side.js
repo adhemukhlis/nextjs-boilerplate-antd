@@ -15,7 +15,7 @@ export const authLoginMock = (axiosInstance) => {
 		code: 200,
 		message: '[mock] login success',
 		data: {
-			access_token: '<access_token>',
+			accessToken: '<accessToken>',
 			refresh_token: '<refresh_token>',
 			role: {
 				role_id: '822ba1f0-647b-4b05-9403-487199c0f484',

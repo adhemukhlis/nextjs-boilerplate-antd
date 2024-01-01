@@ -16,7 +16,7 @@ const ErrorPanel = ({ errors = [] }) => {
 								closable
 							/>
 						)
-				  })
+					})
 				: null}
 		</>
 	)

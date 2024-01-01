@@ -6,7 +6,7 @@ const routeGuard = (allowed, redirectTo, props) => {
 					destination: redirectTo,
 					permanent: false
 				}
-		  }
+			}
 		: props
 }
 export default routeGuard

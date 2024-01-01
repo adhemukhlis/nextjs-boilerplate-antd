@@ -1,0 +1,11 @@
+{
+	"users": [
+		{
+			"username": "admin",
+			"email": "admin@admin.com",
+			"gender": "male",
+			"password": "Password1"
+		}
+	],
+	"sessionLogin": []
+}

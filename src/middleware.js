@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
 import { getIronSession } from 'iron-session/edge'
+import { NextResponse } from 'next/server'
 import sessionOptions from '@/utils/sessionOptions'
 const isAuthenticated = () => true
 // This function can be marked `async` if using `await` inside

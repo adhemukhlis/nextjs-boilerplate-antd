@@ -1,10 +1,10 @@
 import '@/styles/globals.css'
-import React from 'react'
 import { StyleProvider } from '@ant-design/cssinjs'
 import { ConfigProvider } from 'antd'
 import { useRouter } from 'next/router'
-import PUBLIC_PAGE_URL from '@/configs/public-page-url'
+import React from 'react'
 import LayoutComponent from '@/components/Layout'
+import PUBLIC_PAGE_URL from '@/configs/public-page-url'
 // import axios from 'axios'
 // import { getIronSession } from 'iron-session'
 // import { has } from 'lodash'
@@ -27,8 +27,7 @@ const App = ({ Component, pageProps }) => {
 						style={{
 							minHeight: '100vh', // minHeight = heigh of screen - (margin top + margin bottom)
 							display: 'flex',
-							justifyContent: 'center',
-							alignItems: 'center'
+							justifyContent: 'center'
 						}}>
 						<Component {...pageProps} />
 					</div>

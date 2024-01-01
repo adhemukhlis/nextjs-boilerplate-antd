@@ -1,6 +1,6 @@
 import { instance } from '../api-instance'
 
-export const getListGalleryType = async (access_token, { page = 1, per_page = 10 }) =>
+export const getListGalleryType = async (accessToken, { page = 1, per_page = 10 }) =>
 	await instance
 		.request({
 			method: 'get',
@@ -10,7 +10,7 @@ export const getListGalleryType = async (access_token, { page = 1, per_page = 10
 				per_page: per_page
 			},
 			headers: {
-				Authorization: `Bearer ${access_token}`
+				Authorization: `Bearer ${accessToken}`
 			}
 		})
 		.then((res) => {
@@ -20,14 +20,14 @@ export const getListGalleryType = async (access_token, { page = 1, per_page = 10
 			throw err
 		})
 
-export const getAllMasterGalleryType = async (access_token) =>
+export const getAllMasterGalleryType = async (accessToken) =>
 	// token,
 	await instance
 		.request({
 			method: 'get',
 			url: '/api/v1/gallery/masterTipe',
 			headers: {
-				Authorization: `Bearer ${access_token}`
+				Authorization: `Bearer ${accessToken}`
 			}
 		})
 		.then((res) => {

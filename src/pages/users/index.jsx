@@ -1,12 +1,12 @@
-import { Button, Tag, Typography } from 'antd'
-import Link from 'next/link'
 import { PlusOutlined } from '@ant-design/icons'
-import { useRouter } from 'next/router'
+import { Button, Tag, Typography } from 'antd'
 import axios from 'axios'
-import MainTable from '@/components/Table/MainTable'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 import ErrorPanel from '@/components/ErrorPanel'
-import { withSession } from '@/utils/session-wrapper'
+import MainTable from '@/components/Table/MainTable'
 import routeGuard from '@/utils/route-guard'
+import { withSession } from '@/utils/session-wrapper'
 const { Title } = Typography
 const STATUS_COLORS = { female: 'magenta', male: 'blue' }
 const STATUS_TEXT = { female: 'Female', male: 'Male' }
@@ -59,11 +59,11 @@ const UsersPage = ({ errors, query, listUser }) => {
 export default UsersPage
 
 export const getServerSideProps = withSession(async ({ req, query }) => {
-	const access_token = req.session?.auth?.access_token
-	const isLoggedIn = !!access_token
+	const accessToken = req.session?.auth?.accessToken
+	const isLoggedIn = !!accessToken
 	const validator = [isLoggedIn]
 	let listUser = []
-	let queryMerge = { ...query }
+	const queryMerge = { ...query }
 	const errors = []
 	if (![isLoggedIn].includes(false)) {
 		await axios

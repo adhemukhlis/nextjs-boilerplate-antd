@@ -1,6 +1,6 @@
 import PdfPrinter from 'pdfmake'
-import invoice from './invoice'
 import { Roboto } from './fonts'
+import invoice from './invoice'
 
 export const createPdf = async (data) => {
 	const printer = new PdfPrinter({ Roboto })

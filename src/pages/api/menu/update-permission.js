@@ -1,8 +1,8 @@
-import { withSessionRoute } from '@/utils/session-wrapper'
 import apiService from '@/utils/apiService'
+import { withSessionRoute } from '@/utils/session-wrapper'
 
 export default withSessionRoute(async (req, res) => {
-	const token = req.session?.auth?.access_token
+	const token = req.session?.auth?.accessToken
 	if (req.method === 'POST') {
 		try {
 			const response = await apiService.request({

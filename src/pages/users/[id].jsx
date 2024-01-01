@@ -7,9 +7,9 @@ import ErrorPanel from '@/components/ErrorPanel'
 import { getDetailRole } from '@/services/role'
 import axiosGroup from '@/utils/axiosGroup'
 import errorModal from '@/utils/error-modal'
-import { withSession } from '@/utils/session-wrapper'
-import routeGuard from '@/utils/route-guard'
 import globalStore from '@/utils/global-store'
+import routeGuard from '@/utils/route-guard'
+import { withSession } from '@/utils/session-wrapper'
 import validatePermission from '@/utils/validate-permission'
 const { Title } = Typography
 
@@ -136,8 +136,8 @@ const DetailMasterRole = ({ isNotFound, errors, hasUpdateAccess, hasReadAccess, 
 export default DetailMasterRole
 
 export const getServerSideProps = withSession(async ({ req, query }) => {
-	const access_token = req.session?.auth?.access_token
-	const isLoggedIn = !!access_token
+	const accessToken = req.session?.auth?.accessToken
+	const isLoggedIn = !!accessToken
 	const authMenu = globalStore.get('authMenu')
 	const hasReadAccess = validatePermission(authMenu || [], 'role_management', 'read')
 	const hasUpdateAccess = validatePermission(authMenu || [], 'role_management', 'update')
@@ -146,7 +146,7 @@ export const getServerSideProps = withSession(async ({ req, query }) => {
 	let isNotFound = false
 	const errors = []
 
-	const [responseDetailRole] = await axiosGroup([getDetailRole(access_token, query.id)])
+	const [responseDetailRole] = await axiosGroup([getDetailRole(accessToken, query.id)])
 	if (responseDetailRole.status === 200) {
 		const { data } = responseDetailRole.response.data
 		roleData = data || {}

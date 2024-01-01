@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import { Button, Modal, Upload, message } from 'antd'
 import { CloseOutlined, LoadingOutlined, UploadOutlined } from '@ant-design/icons'
+import { Button, Modal, Upload, message } from 'antd'
+import { useEffect, useState } from 'react'
 import useMediaQuery from 'use-media-antd-query'
 const modalSize = {
 	xs: '90%',
