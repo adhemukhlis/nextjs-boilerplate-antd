@@ -59,7 +59,7 @@ const MainUploadFile = ({
 							status: 'done',
 							url: value
 						}
-				  ]
+					]
 				: []
 			setFileList(initState)
 		}

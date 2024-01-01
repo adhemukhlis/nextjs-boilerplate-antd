@@ -1,14 +1,15 @@
-import { Button, Card, Col, Form, Input, Row, Segmented, Space, Tooltip, message } from 'antd'
+import { Button, Card, Col, Form, Input, Row, Segmented, Space, Tooltip, message, Typography } from 'antd'
+import axios from 'axios'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import axios from 'axios'
 import { useRef, useState } from 'react'
-import { withSession } from '@/utils/session-wrapper'
-import routeGuard from '@/utils/route-guard'
 import MainCaptcha from '@/components/Captcha'
 import errorModal from '@/utils/error-modal'
+import routeGuard from '@/utils/route-guard'
+import { withSession } from '@/utils/session-wrapper'
 
+const { Title } = Typography
 const RegisterPage = () => {
 	const router = useRouter()
 	const [form] = Form.useForm()
@@ -27,16 +28,25 @@ const RegisterPage = () => {
 				data: { username, email, gender, password, confirm_password, captcha }
 			})
 			.then((res) => {
-				if (res.status === 200) {
-					message.success(
-						<Space>
-							{res.data.message}
-							<Link href="/login">
-								<Button type="primary">Login Now!</Button>
-							</Link>
-						</Space>,
-						5
-					)
+				if (res.status === 201) {
+					message.open({
+						key: 'register-success-message',
+						type: 'success',
+						content: (
+							<Space>
+								{res.data.message}
+								<Button
+									type="primary"
+									onClick={() => {
+										message.destroy('register-success-message')
+										router.replace('/login')
+									}}>
+									Login Now!
+								</Button>
+							</Space>
+						),
+						duration: 6
+					})
 					form.resetFields()
 				}
 			})
@@ -54,160 +64,151 @@ const RegisterPage = () => {
 		<>
 			<div
 				style={{
-					height: '100%',
-					width: '40rem',
 					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center'
+					flex: 1,
+					alignItems: 'center',
+					overflowX: 'auto',
+					overflowY: 'auto'
 				}}>
-				<Card
-					bodyStyle={{ padding: 0, overflow: 'hidden' }}
-					style={{
-						padding: 0,
-						width: '100%'
-					}}>
-					<div
-						style={{
-							padding: '1rem',
-							display: 'flex',
-							justifyContent: 'center',
-							alignItems: 'center',
-							borderRadius: '8px',
-							backgroundColor: '#61B4F7'
-						}}>
-						<Image src="/assets/images/logo.png" width={104} height={100} alt="logo" />
-					</div>
-					<div
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'center',
-							paddingLeft: '6rem',
-							paddingRight: '6rem',
-							paddingTop: '4rem'
-						}}>
-						<Form
-							form={form}
-							style={{
-								width: '100%'
-							}}
-							initialValues={{ gender: 'male' }}
-							onFinish={handleSubmit}
-							autoComplete="off"
-							layout="vertical"
-							colon={false}>
-							<Form.Item
-								label="Username"
-								name="username"
-								rules={[
-									{
-										required: true,
-										type: 'string',
-										max: 16,
-										min: 4
-									}
-								]}>
-								<Input />
-							</Form.Item>
-							<Form.Item
-								label="Email"
-								name="email"
-								rules={[
-									{
-										required: true,
-										type: 'email',
-										message: 'Please input your email!'
-									}
-								]}>
-								<Input />
-							</Form.Item>
-							<Form.Item
-								label="Gender"
-								name="gender"
-								rules={[
-									{
-										required: true
-									}
-								]}>
-								<Segmented
-									block
-									options={[
-										{ label: 'Female', value: 'female' },
-										{ label: 'Male', value: 'male' },
-										{
-											label: (
-												<Tooltip placement="bottomRight" title="ignore this, it's just a bug">
-													Non-binary
-												</Tooltip>
-											),
-											value: 'undefined',
-											disabled: true
-										}
-									]}
-								/>
-							</Form.Item>
-							<Form.Item
-								label="Password"
-								name="password"
-								rules={[
-									{
-										required: true,
-										message: 'Please input your password!'
-									}
-								]}>
-								<Input.Password />
-							</Form.Item>
-							<Form.Item
-								name="confirm_password"
-								label="Confirm Password"
-								dependencies={['password']}
-								hasFeedback
-								rules={[
-									{
-										required: true,
-										message: 'Please confirm your password!'
-									},
-									({ getFieldValue }) => ({
-										validator(_, value) {
-											if (!value || getFieldValue('password') === value) {
-												return Promise.resolve()
+				<Row justify="center" align="middle" style={{ flex: 1 }}>
+					<Col {...{ xxl: 8, xl: 8, lg: 10, md: 12, sm: 16, xs: 22 }}>
+						<Card>
+							<div
+								style={{
+									margin: '2rem 0 2rem 0',
+									padding: '0 2rem 0 2rem',
+									display: 'flex',
+									gap: '2rem',
+									flexDirection: 'column',
+									justifyContent: 'center',
+									alignItems: 'center'
+								}}>
+								<Image src="/_assets/images/logo.png" width={100} height={100} alt="logo" />
+								<Title level={3}>Register</Title>
+								<Form
+									form={form}
+									style={{
+										width: '100%'
+									}}
+									initialValues={{ gender: 'male' }}
+									onFinish={handleSubmit}
+									autoComplete="off"
+									layout="vertical"
+									colon={false}>
+									<Form.Item
+										label="Username"
+										name="username"
+										rules={[
+											{
+												required: true,
+												type: 'string',
+												max: 16,
+												min: 4
 											}
-											return Promise.reject(new Error('The two passwords that you entered do not match!'))
-										}
-									})
-								]}>
-								<Input.Password />
-							</Form.Item>
-							<Form.Item
-								name="captcha"
-								rules={[
-									{
-										required: true,
-										message: 'please do captcha check'
-									}
-								]}>
-								<MainCaptcha
-									ref={captchaRef}
-									create="/api/captcha/create"
-									verify="/api/captcha/verify"
-									callback={verifiedCallback}
-								/>
-							</Form.Item>
-							<Form.Item>
-								<Row justify="space-between">
-									<Col>
-										<Button type="primary" htmlType="submit" loading={isLoading}>
-											Register Now!
-										</Button>
-									</Col>
-									<Col>
-										<Link href="/login">I already have an account</Link>
-									</Col>
-								</Row>
-							</Form.Item>
-						</Form>
-					</div>
-				</Card>
+										]}>
+										<Input />
+									</Form.Item>
+									<Form.Item
+										label="Email"
+										name="email"
+										rules={[
+											{
+												required: true,
+												type: 'email',
+												message: 'Please input your email!'
+											}
+										]}>
+										<Input />
+									</Form.Item>
+									<Form.Item
+										label="Gender"
+										name="gender"
+										rules={[
+											{
+												required: true
+											}
+										]}>
+										<Segmented
+											block
+											options={[
+												{ label: 'Female', value: 'female' },
+												{ label: 'Male', value: 'male' },
+												{
+													label: (
+														<Tooltip placement="bottomRight" title="ignore this, it's just a bug">
+															Non-binary
+														</Tooltip>
+													),
+													value: 'undefined',
+													disabled: true
+												}
+											]}
+										/>
+									</Form.Item>
+									<Form.Item
+										label="Password"
+										name="password"
+										rules={[
+											{
+												required: true,
+												message: 'Please input your password!'
+											}
+										]}>
+										<Input.Password />
+									</Form.Item>
+									<Form.Item
+										name="confirm_password"
+										label="Confirm Password"
+										dependencies={['password']}
+										hasFeedback
+										rules={[
+											{
+												required: true,
+												message: 'Please confirm your password!'
+											},
+											({ getFieldValue }) => ({
+												validator(_, value) {
+													if (!value || getFieldValue('password') === value) {
+														return Promise.resolve()
+													}
+													return Promise.reject(new Error('The two passwords that you entered do not match!'))
+												}
+											})
+										]}>
+										<Input.Password />
+									</Form.Item>
+									<Form.Item
+										name="captcha"
+										rules={[
+											{
+												required: true,
+												message: 'please do captcha check'
+											}
+										]}>
+										<MainCaptcha
+											ref={captchaRef}
+											create="/api/captcha/create"
+											verify="/api/captcha/verify"
+											callback={verifiedCallback}
+										/>
+									</Form.Item>
+									<Form.Item>
+										<Row justify="space-between">
+											<Col>
+												<Button type="primary" htmlType="submit" loading={isLoading}>
+													Register Now!
+												</Button>
+											</Col>
+											<Col>
+												<Link href="/login">I already have an account</Link>
+											</Col>
+										</Row>
+									</Form.Item>
+								</Form>
+							</div>
+						</Card>
+					</Col>
+				</Row>
 			</div>
 		</>
 	)
@@ -216,8 +217,8 @@ const RegisterPage = () => {
 export default RegisterPage
 
 export const getServerSideProps = withSession(async function ({ req }) {
-	const access_token = req.session?.auth?.access_token
-	const isLoggedOut = !access_token
+	const accessToken = req.session?.auth?.accessToken
+	const isLoggedOut = !accessToken
 	const validator = [isLoggedOut]
 	return routeGuard(validator, '/', {
 		props: {}

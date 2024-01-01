@@ -1,36 +1,35 @@
-import { SHA3, enc } from 'crypto-js'
+import apiService from '@/utils/apiService'
 import { withSessionRoute } from '@/utils/session-wrapper'
-import { db } from '@/db/lowdbService'
-import userValidator from '@/schemas/user'
 
 export default withSessionRoute(async (req, res) => {
 	const { username, email, gender, password, confirm_password, captcha, ...other } = req.body
-	if (req.method === 'POST') {
-		const [isUserValid, userInvalid] = userValidator({ username, email, gender, password, confirm_password, captcha })
-		if (isUserValid) {
+	switch (req.method) {
+		case 'POST': {
 			if (captcha === req.session.captcha_token) {
-				await db.read()
-				const { users } = db.data
-				if (users.filter((user) => user.email === email).length < 1) {
-					const password_hash = SHA3(password).toString(enc.Hex)
-					users.push({ username, email, gender, password: password_hash })
-					await db.write()
-				} else {
-					res.status(403).send({ message: 'Already Exists', errors: ['Email sudah terdaftar!'] })
+				try {
+					const result = await apiService.request({
+						method: 'POST',
+						url: '/auth/register',
+						data: { username, email, gender, password, confirm_password }
+					})
+					const { data: _data, status } = result
+					const { data, message } = _data
+					return res.status(status).send({ message, data })
+				} catch (error) {
+					const {
+						data: { message, errors },
+						status
+					} = error.response
+					return res.status(status).send({ message, status, errors })
 				}
-				res.status(200).send({ message: `${email} registered successfully!` })
 			} else {
-				res
+				return res
 					.status(400)
 					.send({ message: 'Invalid Captcha!', errors: ['Validasi Captcha tidak valid, mohon ulangi validasi captcha!'] })
 			}
-		} else {
-			res.status(400).send({
-				message: 'Bad Request',
-				errors: userInvalid.map((err) => `${err.message} : ${JSON.stringify(err.params)}`)
-			})
 		}
-	} else {
-		res.status(405).send({ message: 'Method not allowed' })
+		default: {
+			return res.status(405).send({ message: 'Method not allowed' })
+		}
 	}
 })

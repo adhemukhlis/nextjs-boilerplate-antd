@@ -1,5 +1,5 @@
+import { createPdf, errorPdfHtmlTemplate } from '../../../../trash/components/PdfGenerator'
 import { withSessionRoute } from '@/utils/session-wrapper'
-import { createPdf, errorPdfHtmlTemplate } from '@/components/PdfGenerator'
 
 export default withSessionRoute(async (req, res) => {
 	// console.log('ini req body', req.body)

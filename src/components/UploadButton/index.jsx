@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { Button, Upload, message } from 'antd'
 import { CloseOutlined, LoadingOutlined, UploadOutlined } from '@ant-design/icons'
+import { Button, Upload, message } from 'antd'
+import { useState } from 'react'
 import styledComponents from 'styled-components'
 const allowImageFileType = ['image/jpeg', 'image/png', 'image/jpg', 'jpeg', 'jpg', 'png']
 const allowVideoFileType = ['video/mp4', 'mp4']
@@ -52,8 +52,8 @@ const UploadButton = styledComponents(({ maxSize = 2, aspect = 1, onReadyUpload,
 							media_type: allowVideoFileType.includes(fileType)
 								? 'vid'
 								: allowImageFileType.includes(fileType)
-								? 'img'
-								: fileType
+									? 'img'
+									: fileType
 						})
 					})
 					.finally(() => {

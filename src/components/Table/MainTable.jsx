@@ -36,7 +36,7 @@ const MainTable = memo(
 										}
 									})
 								}
-						  }
+							}
 						: false
 				}
 				{...other}

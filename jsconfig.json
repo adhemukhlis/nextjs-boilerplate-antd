@@ -4,5 +4,5 @@
 			"@/*": ["./src/*"]
 		}
 	},
-	"exclude": ["./out/**/*", "./node_modules/**/*", "cypress/**/*.ts","./next"]
+	"exclude": ["./out/**/*", "./node_modules/**/*", "cypress/**/*.ts", "./next"]
 }

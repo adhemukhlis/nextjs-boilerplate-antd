@@ -1,7 +1,7 @@
 import { get } from 'lodash'
-import { withSessionRoute } from '@/utils/session-wrapper'
-import ssrCache from '@/utils/cache'
 import apiService from '@/utils/apiService'
+import ssrCache from '../../../../../trash/utils/cache'
+import { withSessionRoute } from '@/utils/session-wrapper'
 export default withSessionRoute(async (req, res) => {
 	const id = get(req, 'query.id', '')
 	const forceUpdate = get(req, 'query.force', false) === 'true'

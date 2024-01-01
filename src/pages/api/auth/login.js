@@ -1,48 +1,39 @@
-import dayjs from 'dayjs'
-import { SHA3, enc } from 'crypto-js'
+import apiService from '@/utils/apiService'
 import { withSessionRoute } from '@/utils/session-wrapper'
-import { db } from '@/db/lowdbService'
-import randomStringGenerator from '@/utils/random-string-generator'
-
 export default withSessionRoute(async (req, res) => {
 	const { email, password, captcha } = req.body
-	if (req.method === 'POST') {
-		if (captcha === req.session.captcha_token) {
-			await db.read()
-			const { users } = db.data
-			const password_hash = SHA3(password).toString(enc.Hex)
-			const userByEmail = users.filter((user) => user.email === email && user.password === password_hash)
-			if (userByEmail.length > 0) {
-				const { sessionLogin } = db.data
-				const sessionIndex = sessionLogin.findIndex((item) => item.email === email)
-				const generated_token = randomStringGenerator()
-				if (sessionIndex === -1) {
-					sessionLogin.push({ email, access_token: generated_token })
-					await db.write()
-				} else {
-					sessionLogin[sessionIndex] = {
+	switch (req.method) {
+		case 'POST': {
+			if (captcha === req.session.captcha_token) {
+				try {
+					const result = await apiService.request({
+						method: 'POST',
+						url: '/auth/login',
+						data: { email, password }
+					})
+					const { data: _data, status } = result
+					const { data, message } = _data
+					req.session.auth = {
 						email,
-						access_token: generated_token,
-						expired_at: dayjs().add(7, 'day').toISOString()
+						accessToken: data.accessToken
 					}
-					await db.write()
+					await req.session.save()
+					return res.status(status).send({ message })
+				} catch (error) {
+					const {
+						data: { message, errors },
+						status
+					} = error.response
+					return res.status(status).send({ message, status, errors })
 				}
-				req.session.auth = {
-					username: userByEmail[0].username,
-					email: userByEmail[0].email,
-					access_token: generated_token
-				}
-				await req.session.save()
-				res.status(200).send(userByEmail)
 			} else {
-				res.status(400).send({ message: 'User not found', errors: ['Email atau password salah!'] })
+				return res
+					.status(400)
+					.send({ message: 'Invalid Captcha!', errors: ['Validasi Captcha tidak valid, mohon ulangi validasi captcha!'] })
 			}
-		} else {
-			res
-				.status(400)
-				.send({ message: 'Invalid Captcha!', errors: ['Validasi Captcha tidak valid, mohon ulangi validasi captcha!'] })
 		}
-	} else {
-		res.status(405).send({ message: 'Method not allowed' })
+		default: {
+			return res.status(405).send({ message: 'Method not allowed' })
+		}
 	}
 })

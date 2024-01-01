@@ -5,10 +5,10 @@ import { useRouter } from 'next/router'
 
 import { useState } from 'react'
 import errorModal from '@/utils/error-modal'
-import { withSession } from '@/utils/session-wrapper'
 import globalStore from '@/utils/global-store'
-import validatePermission from '@/utils/validate-permission'
 import routeGuard from '@/utils/route-guard'
+import { withSession } from '@/utils/session-wrapper'
+import validatePermission from '@/utils/validate-permission'
 
 const { Title } = Typography
 const { confirm } = Modal
@@ -96,8 +96,8 @@ const AddMasterRole = ({ hasCreateAccess }) => {
 export default AddMasterRole
 
 export const getServerSideProps = withSession(async ({ req }) => {
-	const access_token = req.session?.auth?.access_token
-	const isLoggedIn = !!access_token
+	const accessToken = req.session?.auth?.accessToken
+	const isLoggedIn = !!accessToken
 	const authMenu = globalStore.get('authMenu')
 	const hasCreateAccess = validatePermission(authMenu || [], 'role_management', 'create')
 	const validator = [isLoggedIn]

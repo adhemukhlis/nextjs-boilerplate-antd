@@ -26,11 +26,11 @@
  *  <UploadProfile onReadyUpload={handleUpload} imageUrl={imgUrl} /> 
  */
 
-import { memo, useEffect, useState } from 'react'
-import { Button, Modal, Upload, message } from 'antd'
 import { CloseOutlined, LoadingOutlined, UploadOutlined } from '@ant-design/icons'
-import useMediaQuery from 'use-media-antd-query'
+import { Button, Modal, Upload, message } from 'antd'
 import { isEqual } from 'lodash'
+import { memo, useEffect, useState } from 'react'
+import useMediaQuery from 'use-media-antd-query'
 const modalSize = {
 	xs: '90%',
 	sm: '90%',
@@ -83,8 +83,8 @@ const UploadImageMultiple = memo(
 						type: allowImageFileType.includes(fileExtension)
 							? `image/${fileExtension}`
 							: allowVideoFileType.includes(fileExtension)
-							? `video/${fileExtension}`
-							: fileExtension
+								? `video/${fileExtension}`
+								: fileExtension
 					}
 				})
 				setFileList(initState)
@@ -177,8 +177,8 @@ const UploadImageMultiple = memo(
 											media_type: allowImageFileType.includes(fileExtension)
 												? `img`
 												: allowVideoFileType.includes(fileExtension)
-												? `vid`
-												: fileExtension
+													? `vid`
+													: fileExtension
 										}
 									})
 								)

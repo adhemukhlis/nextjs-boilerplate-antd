@@ -1,7 +1,7 @@
 // refactor passed
-import React, { Fragment, forwardRef, useImperativeHandle, useState } from 'react'
 import SliderCaptcha from '@slider-captcha/react'
 import PropTypes from 'prop-types'
+import React, { Fragment, forwardRef, useImperativeHandle, useState } from 'react'
 
 const MainCaptcha = forwardRef(({ create, verify, callback }, ref) => {
 	const [visibleCaptcha, setVisibleCaptcha] = useState(true)
