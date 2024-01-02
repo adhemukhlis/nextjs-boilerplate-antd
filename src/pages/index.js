@@ -31,6 +31,7 @@ const Index = () => {
 }
 export default Index
 export const getServerSideProps = withSession(async function ({ req, query, ...other }) {
+
 	const accessToken = req.session?.auth?.accessToken
 	const isLoggedIn = !!accessToken
 	return routeGuard([isLoggedIn], '/login', {
