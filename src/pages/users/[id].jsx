@@ -1,162 +1,205 @@
-import { Button, Form, Input, Result, Space, Switch, Typography, message } from 'antd'
+import { Button, Form, Input, Popconfirm, Row, Select, Space, message } from 'antd'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
-import MainButtonDelete from '@/components/ButtonDelete'
-import ErrorPanel from '@/components/ErrorPanel'
-import { getDetailRole } from '@/services/role'
-import axiosGroup from '@/utils/axiosGroup'
 import errorModal from '@/utils/error-modal'
-import globalStore from '@/utils/global-store'
-import routeGuard from '@/utils/route-guard'
-import { withSession } from '@/utils/session-wrapper'
-import validatePermission from '@/utils/validate-permission'
-const { Title } = Typography
+// import { getDetailUser } from '@/services/user'
+// import axiosGroup from '@/utils/axiosGroup'
+// import routeGuard from '@/utils/routeGuard'
+// import { withSession } from '@/utils/sessionWrapper'
 
-const DetailMasterRole = ({ isNotFound, errors, hasUpdateAccess, hasReadAccess, roleData }) => {
+const DetailUser = ({ detailUser }) => {
 	const [form] = Form.useForm()
-	const [isUpdate, setIsUpdate] = useState(false)
 	const router = useRouter()
-	const [loading, setLoading] = useState(false)
-
+	// State Management
+	const [updateLoading, setUpdateLoading] = useState(false)
+	const [deleteLoading, setDeleteLoading] = useState(false)
+	const GENDER_OPTIONS = [
+		{
+			value: 1,
+			label: 'Pria'
+		},
+		{
+			value: 0,
+			label: 'Wanita'
+		}
+	]
 	const handleSubmit = async (values) => {
-		const { status, name } = values
-		setLoading(true)
-		axios
-			.request({
-				method: 'post',
-				url: '/api/role/update-role/' + router.query.id,
-				data: { name, status: status ? 1 : 0 }
-			})
-			.then((res) => {
-				if (res.status === 200) {
-					message.success('Update data success!', 3)
-					setIsUpdate(false)
-				}
-			})
-			.catch((err) => {
-				errorModal(err)
-			})
-			.finally(() => {
-				setLoading(false)
-			})
-	}
-	const handleDelete = async () =>
+		setUpdateLoading(true)
 		await axios
 			.request({
 				method: 'post',
-				url: '/api/role/delete-role/' + router.query.id
+				url: '/api/users/update-user',
+				data: { id: router.query.id, ...values }
 			})
 			.then((res) => {
-				if (res.status === 200) {
-					message.success('Delete data success!', 3)
-					setTimeout(() => {
-						router.push('/role-management')
-					}, 2000)
-				}
+				message.success('Data Updated!', 3)
+				return res
 			})
-
-	const handleCancel = () => {
-		form.resetFields()
-		setIsUpdate(false)
+			.catch((err) => {
+				errorModal(err)
+				return err
+				// throw err
+			})
+			.finally(() => {
+				router.push({
+					pathname: '/users'
+				})
+			})
+		setUpdateLoading(true)
 	}
-	return !isNotFound && hasReadAccess ? (
+	const text = 'Are you sure to delete this User?'
+	const description = 'This action will permanently delete the user'
+	const handleDelete = async () => {
+		setDeleteLoading(true)
+		return await axios
+			.request({
+				method: 'post',
+				url: '/api/users/delete-user',
+				data: { id: router.query.id }
+			})
+			.then((res) => {
+				message.success('Data Deleted!', 3)
+				return res
+			})
+			.catch((err) => {
+				errorModal(err)
+				return err
+				// throw err
+			})
+			.finally(() => {
+				router.push({
+					pathname: '/users'
+				})
+				setDeleteLoading(false)
+			})
+	}
+
+	return (
 		<>
-			<ErrorPanel errors={errors} />
-			<Title level={3}>Detail Role - {roleData?.name}</Title>
-			<div style={{ paddingTop: '4rem' }}>
-				<Form
-					form={form}
-					autoComplete="off"
-					labelCol={{ span: 6 }}
-					wrapperCol={{ span: 12 }}
-					labelAlign="left"
-					colon={false}
-					onFinish={handleSubmit}
-					initialValues={{ ...roleData, status: !!roleData?.status }}
-					disabled={!isUpdate}>
-					<Form.Item name="name" label="Nama Role" rules={[{ required: true, message: 'This field is required' }]}>
+			{/* <ErrorPanel errors={errors} /> */}
+			<Form
+				form={form}
+				autoComplete="off"
+				labelCol={{ span: 4 }}
+				wrapperCol={{ span: 12 }}
+				labelAlign="left"
+				onFinish={handleSubmit}
+				initialValues={detailUser}
+				colon={false}>
+				<div
+					className="card-blog"
+					style={{
+						padding: 8,
+						paddingTop: '3rem',
+						paddingLeft: '3rem',
+						marginTop: 4,
+						backgroundColor: 'white',
+						marginBottom: 16,
+						borderRadius: '30px'
+					}}>
+					<Form.Item name="username" label="Username" rules={[{ required: true, message: 'This field is required' }]}>
+						<Input style={{ width: '100%' }} />
+					</Form.Item>
+					<Form.Item name="fullname" label="Fullname" rules={[{ required: true, message: 'This field is required' }]}>
+						<Input style={{ width: '100%' }} />
+					</Form.Item>
+					<Form.Item name="gender" label="Jenis Kelamin" rules={[{ required: true, message: 'This field is required' }]}>
+						<Select options={GENDER_OPTIONS} />
+					</Form.Item>
+					<Form.Item
+						name="email"
+						label="Email"
+						rules={[
+							{
+								type: 'email',
+								message: 'The input is not valid E-mail!'
+							},
+							{
+								required: true,
+								message: 'Please input your E-mail!'
+							}
+						]}>
 						<Input />
 					</Form.Item>
-					<Form.Item valuePropName="checked" name="status" label="Status">
-						<Switch checkedChildren="aktif" unCheckedChildren="nonaktif" />
+					{/* <Form.Item
+						name="password"
+						label="Password"
+						rules={[
+							{
+								required: true,
+								message: 'Please input your password!'
+							}
+						]}>
+						<Input.Password />
 					</Form.Item>
-					<Form.Item wrapperCol={{ offset: 6 }}>
-						<Space>
-							<Button htmlType="button" onClick={() => window.history.back()} disabled={loading}>
-								Back
-							</Button>
-							<MainButtonDelete
-								title="Delete Role"
-								description="Are you sure to delete?"
-								disabled={loading || isUpdate}
-								onConfirm={handleDelete}
-							/>
-							{!isUpdate && hasUpdateAccess && (
-								<Button htmlType="button" type="primary" onClick={() => setIsUpdate(true)} disabled={false}>
+					<Form.Item
+						name="confirmPassword"
+						label="Confirm Password"
+						rules={[
+							{
+								required: true,
+								message: 'Please confirm your password!'
+							},
+							({ getFieldValue }) => ({
+								validator(_, value) {
+									if (!value || getFieldValue('password') === value) {
+										return Promise.resolve()
+									}
+									return Promise.reject('Passwords do not match')
+								}
+							})
+						]}>
+						<Input.Password />
+					</Form.Item> */}
+					<Form.Item wrapperCol={{ span: 16 }}>
+						<Row justify="end">
+							<Space>
+								<Button htmlType="button" onClick={() => window.history.back()} disabled={updateLoading}>
+									Back to list
+								</Button>
+								<Popconfirm
+									placement="bottom"
+									title={text}
+									description={description}
+									onConfirm={handleDelete}
+									okText="Yes"
+									cancelText="No">
+									<Button type="primary" danger loading={deleteLoading}>
+										Delete
+									</Button>
+								</Popconfirm>
+								<Button type="primary" htmlType="submit" loading={updateLoading}>
 									Update
 								</Button>
-							)}
-							{isUpdate && (
-								<>
-									<Button onClick={handleCancel} disabled={loading}>
-										Cancel
-									</Button>
-									<Button type="primary" htmlType="submit" loading={loading}>
-										Submit
-									</Button>
-								</>
-							)}
-						</Space>
+							</Space>
+						</Row>
 					</Form.Item>
-				</Form>
-			</div>
-		</>
-	) : hasReadAccess ? (
-		<>
-			<Result
-				status="404"
-				title="404"
-				subTitle="Sorry, the page you visited does not exist."
-				extra={<Button onClick={() => window.history.back()}>Back</Button>}
-			/>
-		</>
-	) : (
-		<>
-			<Result
-				status="403"
-				title="403"
-				subTitle="Sorry, you are not authorized to access this page."
-				extra={<Button onClick={() => window.history.back()}>Back</Button>}
-			/>
+				</div>
+			</Form>
 		</>
 	)
 }
 
-export default DetailMasterRole
+export default DetailUser
 
-export const getServerSideProps = withSession(async ({ req, query }) => {
-	const accessToken = req.session?.auth?.accessToken
-	const isLoggedIn = !!accessToken
-	const authMenu = globalStore.get('authMenu')
-	const hasReadAccess = validatePermission(authMenu || [], 'role_management', 'read')
-	const hasUpdateAccess = validatePermission(authMenu || [], 'role_management', 'update')
-	const validator = [isLoggedIn]
-	let roleData = {}
-	let isNotFound = false
-	const errors = []
+// export const getServerSideProps = withSession(async ({ req, query }) => {
+// 	const access_token = req.session?.auth?.access_token
+// 	const isLoggedIn = !!access_token
+// 	let detailUser = {}
+// 	const errors = []
+// 	const [detailUserResp] = await axiosGroup([getDetailUser(access_token, query.id)])
+// 	if (detailUserResp.status === 200) {
+// 		const { data } = detailUserResp.response.data
+// 		detailUser = data || {}
+// 	} else {
+// 		errors.push({ url: detailUserResp.url, message: detailUserResp.error.response.data.message })
+// 	}
 
-	const [responseDetailRole] = await axiosGroup([getDetailRole(accessToken, query.id)])
-	if (responseDetailRole.status === 200) {
-		const { data } = responseDetailRole.response.data
-		roleData = data || {}
-	} else if ([400, 404].includes(responseDetailRole.status)) {
-		isNotFound = true
-	} else {
-		errors.push({ url: responseDetailRole.url, message: responseDetailRole.error.response.data.message })
-	}
-
-	return routeGuard(validator, '/', {
-		props: { isNotFound, errors, hasUpdateAccess, hasReadAccess, roleData }
-	})
-})
+// 	return routeGuard([isLoggedIn], '/login', {
+// 		props: {
+// 			errors,
+// 			detailUser
+// 		}
+// 	})
+// })

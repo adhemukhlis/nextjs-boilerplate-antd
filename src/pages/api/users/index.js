@@ -14,7 +14,7 @@ export default withSessionRoute(async (req, res) => {
 			res.status(200).send(response.data)
 		} else {
 			res.status(401).send({ message: 'Invalid Token!' })
-		}
+		} 
 	} else {
 		res.status(405).send({ message: 'Method not allowed' })
 	}

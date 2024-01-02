@@ -1,38 +1,51 @@
 import { CheckCircleTwoTone } from '@ant-design/icons'
-import { Button, Form, Input, Modal, Result, Space, Switch, Typography } from 'antd'
+import { Button, Form, Input, Modal, Row, Select, Space, Typography } from 'antd'
 import axios from 'axios'
 import { useRouter } from 'next/router'
-
 import { useState } from 'react'
 import errorModal from '@/utils/error-modal'
-import globalStore from '@/utils/global-store'
-import routeGuard from '@/utils/route-guard'
-import { withSession } from '@/utils/session-wrapper'
-import validatePermission from '@/utils/validate-permission'
-
+// import { getAllListProperty } from '../api/property'
+// import { getRoles } from '../api/role'
+// import MainDatePicker from '@/components/DatePicker'
+// import axiosGroup from '@/utils/axiosGroup'
+// import globalStore from '@/utils/global-store'
+// import routeGuard from '@/utils/routeGuard'
+// import { withSession } from '@/utils/sessionWrapper'
+// import validatePermission from '@/utils/validate-permission'
+// import ErrorPanel from '@/components/ErrorPanel'
 const { Title } = Typography
 const { confirm } = Modal
-const AddMasterRole = ({ hasCreateAccess }) => {
+
+const AddUser = ({ errors, allRole }) => {
 	const router = useRouter()
 	const [form] = Form.useForm()
 	const [loading, setLoading] = useState(false)
-	const handleSubmit = async (values) => {
-		const { status, name } = values
+	const GENDER_OPTIONS = [
+		{
+			value: 1,
+			label: 'Pria'
+		},
+		{
+			value: 0,
+			label: 'Wanita'
+		}
+	]
+	const submitHandler = async (values) => {
 		setLoading(true)
-		return await axios
+		await axios
 			.request({
-				method: 'post',
-				url: '/api/role/add-role',
-				data: { name, status: status ? 1 : 0 }
+				url: '/api/user-management/create-user',
+				method: 'POST',
+				data: values
 			})
 			.then((res) => {
 				if (res.status === 200) {
 					confirm({
 						title: 'Add data success!',
 						icon: <CheckCircleTwoTone twoToneColor="#52c41a" />,
-						content: 'want to add data again?',
+						content: 'Add data again?',
 						okText: 'Yes',
-						cancelText: 'No, back to Table',
+						cancelText: 'No, back to User List',
 						onCancel: () => {
 							router.push(router.pathname.replace('/add', ''))
 						},
@@ -44,65 +57,141 @@ const AddMasterRole = ({ hasCreateAccess }) => {
 			})
 			.catch((err) => {
 				errorModal(err)
+				return err
 			})
 			.finally(() => {
 				setLoading(false)
 			})
 	}
-	return hasCreateAccess ? (
+
+	return (
 		<>
-			<Title level={3}>Add New Role</Title>
-			<div style={{ paddingTop: '4rem' }}>
-				<Form
-					form={form}
-					initialValues={{ status: true }}
-					autoComplete="off"
-					labelCol={{ span: 6 }}
-					wrapperCol={{ span: 12 }}
-					labelAlign="left"
-					colon={false}
-					onFinish={handleSubmit}>
-					<Form.Item name="name" label="Nama Role" rules={[{ required: true, message: 'This field is required' }]}>
+			<Form
+				form={form}
+				autoComplete="off"
+				labelCol={{ span: 4 }}
+				wrapperCol={{ span: 12 }}
+				labelAlign="left"
+				colon={false}
+				onFinish={submitHandler}>
+				<div
+					className="card-blog"
+					style={{
+						padding: 8,
+						paddingTop: '3rem',
+						paddingLeft: '3rem',
+						marginTop: 4,
+						backgroundColor: 'white',
+						marginBottom: 16,
+						borderRadius: '30px'
+					}}>
+					<Form.Item
+						name="username"
+						label="Username"
+						rules={[
+							{ required: true, message: 'This field is required' },
+							{ pattern: /^[^\s]+$/, message: 'Username cannot contain spaces' }
+						]}>
+						<Input style={{ width: '100%' }} />
+					</Form.Item>
+
+					<Form.Item name="fullname" label="Fullname" rules={[{ required: true, message: 'This field is required' }]}>
+						<Input style={{ width: '100%' }} />
+					</Form.Item>
+					<Form.Item name="gender" label="Jenis Kelamin" rules={[{ required: true, message: 'This field is required' }]}>
+						<Select options={GENDER_OPTIONS} />
+					</Form.Item>
+					<Form.Item
+						name="email"
+						label="Email"
+						rules={[
+							{
+								type: 'email',
+								message: 'The input is not valid E-mail!'
+							},
+							{
+								required: true,
+								message: 'Please input your E-mail!'
+							}
+						]}>
 						<Input />
 					</Form.Item>
-					<Form.Item valuePropName="checked" name="status" label="Status">
-						<Switch checkedChildren="aktif" unCheckedChildren="nonaktif" />
+					<Form.Item
+						name="password"
+						label="Password"
+						rules={[
+							{
+								required: true,
+								message: 'Please input your password!'
+							}
+						]}>
+						<Input.Password />
 					</Form.Item>
-					<Form.Item wrapperCol={{ offset: 6 }}>
-						<Space>
-							<Button htmlType="button" onClick={() => window.history.back()} disabled={loading}>
-								Back
-							</Button>
-							<Button type="primary" htmlType="submit" loading={loading}>
-								Submit
-							</Button>
-						</Space>
+					<Form.Item
+						name="confirmPassword"
+						label="Confirm Password"
+						rules={[
+							{
+								required: true,
+								message: 'Please confirm your password!'
+							},
+							({ getFieldValue }) => ({
+								validator(_, value) {
+									if (!value || getFieldValue('password') === value) {
+										return Promise.resolve()
+									}
+									return Promise.reject('Passwords do not match')
+								}
+							})
+						]}>
+						<Input.Password />
 					</Form.Item>
-				</Form>
-			</div>
+
+					<Form.Item wrapperCol={{ span: 16 }}>
+						<Row justify="end">
+							<Space>
+								<Button htmlType="button" onClick={() => router.push('/users')} disabled={loading}>
+									Back To List
+								</Button>
+								<Button type="primary" htmlType="submit" loading={loading}>
+									Add
+								</Button>
+							</Space>
+						</Row>
+					</Form.Item>
+				</div>
+			</Form>
 		</>
-	) : (
-		<>
-			<Result
-				status="403"
-				title="403"
-				subTitle="Sorry, you are not authorized to access this page."
-				extra={<Button onClick={() => window.history.back()}>Back</Button>}
-			/>
-		</>
+		// ) : (
+		// 	<Result
+		// 		status="403"
+		// 		title="403"
+		// 		subTitle="Sorry, you are not authorized to access this page."
+		// 		extra={<Button onClick={() => window.history.back()}>Back</Button>}
+		// 	/>
 	)
 }
 
-export default AddMasterRole
+// export const getServerSideProps = withSession(async ({ req }) => {
+// 	const access_token = req.session?.auth?.accessToken
+// 	const isLoggedIn = !!access_token
+// 	let allRole = []
+// 	const errors = []
+// 	const [roleResp] = await axiosGroup([getAllRole(access_token)])
 
-export const getServerSideProps = withSession(async ({ req }) => {
-	const accessToken = req.session?.auth?.accessToken
-	const isLoggedIn = !!accessToken
-	const authMenu = globalStore.get('authMenu')
-	const hasCreateAccess = validatePermission(authMenu || [], 'role_management', 'create')
-	const validator = [isLoggedIn]
-	const errors = []
-	return routeGuard(validator, '/', {
-		props: { errors, hasCreateAccess }
-	})
-})
+// 	if (roleResp.status === 200) {
+// 		const { data } = roleResp.response.data.result
+// 		allRole = data || {}
+// 	} else {
+// 		errors.push({ url: roleResp.url, message: roleResp.error.response.data.message })
+// 	}
+// 	// }
+// 	return routeGuard([isLoggedIn], '/login', {
+// 		props: {
+// 			errors,
+// 			allRole
+// 		}
+// 	})
+// })
+
+export default AddUser

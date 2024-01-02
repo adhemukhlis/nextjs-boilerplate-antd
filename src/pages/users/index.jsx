@@ -1,17 +1,29 @@
-import { PlusOutlined } from '@ant-design/icons'
-import { Button, Tag, Typography } from 'antd'
-import axios from 'axios'
+import { Button, Form, Input, Tag, Typography } from 'antd'
+import { isBoolean, isEmpty, isNumber, omit, pickBy } from 'lodash'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useState } from 'react'
 import ErrorPanel from '@/components/ErrorPanel'
 import MainTable from '@/components/Table/MainTable'
-import routeGuard from '@/utils/route-guard'
-import { withSession } from '@/utils/session-wrapper'
 const { Title } = Typography
+
 const STATUS_COLORS = { female: 'magenta', male: 'blue' }
 const STATUS_TEXT = { female: 'Female', male: 'Male' }
 const UsersPage = ({ errors, query, listUser }) => {
 	const router = useRouter()
+	const [form] = Form.useForm()
+	const [loading, setLoading] = useState(false)
+	const handleFilter = (values) => {
+		setLoading(true)
+		const other = omit(query, ['total', 'page', 'per_page'])
+		const params = pickBy({ ...other, ...values }, (v) => isNumber(v) || isBoolean(v) || !isEmpty(v))
+		router
+			.push({
+				pathname: '/user-management',
+				query: params
+			})
+			.finally(() => setLoading(false))
+	}
 	const columns = [
 		{
 			key: 'username',
@@ -35,49 +47,90 @@ const UsersPage = ({ errors, query, listUser }) => {
 			)
 		}
 	]
+
+	const data = [
+		{
+			id: 1,
+			username: 'john_doe',
+			email: 'john.doe@example.com',
+			gender: 'male'
+		},
+		{
+			id: 2,
+			username: 'jane_smith',
+			email: 'jane.smith@example.com',
+			gender: 'female'
+		},
+		{
+			id: 3,
+			username: 'sam_jackson',
+			email: 'sam.jackson@example.com',
+			gender: 'male'
+		}
+		// Add more data as needed
+	]
+
 	return (
 		<>
 			<ErrorPanel errors={errors} />
-			<Title level={3}>Master Role</Title>
+			<Title level={3}>Users</Title>
 			<div
 				style={{
-					marginBottom: '1rem',
+					marginBottom: '1.6rem',
 					display: 'flex',
-					gap: '1rem'
+					justifyContent: 'space-between',
+					marginTop: '1rem'
 				}}>
-				<Link href={`${router.pathname}/add`}>
-					<Button type="primary" icon={<PlusOutlined />}>
+				<div>
+					<Button
+						type="primary"
+						// style={{ borderRadius: '13px', marginLeft: '0.8rem' }}
+						onClick={() => router.push('users/add')}>
 						Add
 					</Button>
-				</Link>
+				</div>
+				<div>
+					<Form form={form} onFinish={handleFilter} layout="inline">
+						<Form.Item name="username">
+							<Input placeholder="Username" />
+						</Form.Item>
+						<Form.Item>
+							<Button type="primary" htmlType="submit" loading={loading}>
+								Search
+							</Button>
+						</Form.Item>
+					</Form>
+				</div>
 			</div>
-			<MainTable rowKey="email" columns={columns} query={query} dataSource={listUser} />
+
+			<MainTable rowKey="email" columns={columns} query={query} dataSource={data} />
 		</>
 	)
 }
 
 export default UsersPage
 
-export const getServerSideProps = withSession(async ({ req, query }) => {
-	const accessToken = req.session?.auth?.accessToken
-	const isLoggedIn = !!accessToken
-	const validator = [isLoggedIn]
-	let listUser = []
-	const queryMerge = { ...query }
-	const errors = []
-	if (![isLoggedIn].includes(false)) {
-		await axios
-			.request({
-				method: 'GET',
-				baseURL: 'http://' + req.headers.host,
-				url: '/api/users',
-				headers: req?.headers?.cookie ? { cookie: req.headers.cookie } : undefined
-			})
-			.then((res) => {
-				listUser = res.data
-			})
-	}
-	return routeGuard(validator, '/', {
-		props: { query: queryMerge, errors, listUser }
-	})
-})
+// export const getServerSideProps = withSession(async ({ req, query }) => {
+// 	const accessToken = req.session?.auth?.accessToken
+// 	const isLoggedIn = !!accessToken
+// 	const validator = [isLoggedIn]
+// 	let listUser = []
+// 	const queryMerge = { ...query }
+// 	const errors = []
+// 	if (![isLoggedIn].includes(false)) {
+// 		await axios
+// 			.request({
+// 				method: 'GET',
+// 				baseURL: 'http://' + req.headers.host,
+// 				url: '/api/users',
+// 				headers: req?.headers?.cookie ? { cookie: req.headers.cookie } : undefined,
+// 				Authorization: `Bearer ${accessToken}`
+// 			})
+// 			.then((res) => {
+// 				listUser = res.data
+// 			})
+// 	}
+// 	return routeGuard(validator, '/', {
+// 		props: { query: queryMerge, errors, listUser }
+// 	})
+// })

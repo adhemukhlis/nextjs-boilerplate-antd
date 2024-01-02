@@ -29,6 +29,10 @@ const menus = (authMenu) =>
 					{
 						key: '/components/forms',
 						label: 'Forms'
+					},
+					{
+						key: '/components/autoComplete',
+						label: 'Auto Complete'
 					}
 				]
 			},
