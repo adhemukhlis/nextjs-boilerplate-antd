@@ -70,10 +70,10 @@ const LoginPage = () => {
 						<Card>
 							<div
 								style={{
-									margin: '2rem 0 2rem 0',
+									// margin: '2rem 0 2rem 0',
 									padding: '0 2rem 0 2rem',
 									display: 'flex',
-									gap: '2rem',
+									gap: '1rem',
 									flexDirection: 'column',
 									justifyContent: 'center',
 									alignItems: 'center'
@@ -90,7 +90,7 @@ const LoginPage = () => {
 										width: '100%'
 									}}>
 									<Form.Item
-										label="Email"
+										// label="Email"
 										name="email"
 										rules={[
 											{
@@ -99,10 +99,10 @@ const LoginPage = () => {
 												message: 'Please input your email!'
 											}
 										]}>
-										<Input />
+										<Input placeholder='Email'/>
 									</Form.Item>
 									<Form.Item
-										label="Password"
+										// label="Password"
 										name="password"
 										rules={[
 											{
@@ -110,7 +110,7 @@ const LoginPage = () => {
 												message: 'Please input your password!'
 											}
 										]}>
-										<Input.Password />
+										<Input.Password placeholder='Password'/>
 									</Form.Item>
 									<Form.Item name="remember_me" valuePropName="checked">
 										<Checkbox>Remember me</Checkbox>
@@ -131,9 +131,9 @@ const LoginPage = () => {
 										/>
 									</Form.Item>
 									<Form.Item>
-										<Row justify="space-between">
-											<Col>
-												<Button type="primary" htmlType="submit" loading={isLoading}>
+										<Row justify="end" gutter={[24,24]}>
+											<Col span={24}>
+												<Button block type="primary" htmlType="submit" loading={isLoading}>
 													Login
 												</Button>
 											</Col>
