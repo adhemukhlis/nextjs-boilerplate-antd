@@ -1,11 +1,11 @@
 import { Typography } from 'antd'
 import routeGuard from '@/utils/route-guard'
-import { withSession } from '@/utils/session-wrapper'
+import getIronSessionHandler from '@/utils/session'
 // import dayjs from 'dayjs'
 // import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 // const localeData = require('dayjs/plugin/localeData')
 // dayjs.extend(localeData)
-const { Title, Text } = Typography
+const { Title } = Typography
 const Index = () => {
 	// const months = dayjs.monthsShort()
 	// const data = months.map((month) => ({
@@ -30,11 +30,11 @@ const Index = () => {
 	)
 }
 export default Index
-export const getServerSideProps = withSession(async function ({ req, query, ...other }) {
-
-	const accessToken = req.session?.auth?.accessToken
+export const getServerSideProps = async ({ req, res, query, ...other }) => {
+	const session = await getIronSessionHandler(req, res)
+	const accessToken = session?.auth?.accessToken
 	const isLoggedIn = !!accessToken
 	return routeGuard([isLoggedIn], '/login', {
 		props: {}
 	})
-})
+}

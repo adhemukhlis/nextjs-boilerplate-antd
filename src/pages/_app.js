@@ -1,18 +1,16 @@
 import '@/styles/globals.css'
 import { StyleProvider } from '@ant-design/cssinjs'
 import { ConfigProvider } from 'antd'
+import App from 'next/app'
 import { useRouter } from 'next/router'
 import React from 'react'
 import LayoutComponent from '@/components/Layout'
 import PUBLIC_PAGE_URL from '@/configs/public-page-url'
-// import axios from 'axios'
-// import { getIronSession } from 'iron-session'
-// import { has } from 'lodash'
-// import sessionOptions from '@/utils/sessionOptions'
-// import globalStore from '@/utils/global-store'
-// require('@/utils/mock-adapter')
+import getIronSessionHandler from '@/utils/session'
+
 if (!process.browser) React.useLayoutEffect = React.useEffect
-const App = ({ Component, pageProps }) => {
+
+const EntryPoint = ({ Component, pageProps, userData }) => {
 	const router = useRouter()
 	return (
 		<StyleProvider hashPriority="high">
@@ -32,7 +30,7 @@ const App = ({ Component, pageProps }) => {
 						<Component {...pageProps} />
 					</div>
 				) : (
-					<LayoutComponent>
+					<LayoutComponent userData={userData}>
 						<Component {...pageProps} />
 					</LayoutComponent>
 				)}
@@ -41,33 +39,11 @@ const App = ({ Component, pageProps }) => {
 	)
 }
 
-// App.getInitialProps = async ({ Component, ctx }) => {
-// 	let session = {}
-// 	let url = {}
-// 	try {
-// 		session = await getIronSession(ctx.req, ctx.res, sessionOptions)
-// 		const nextRequestMeta = ctx.req[Reflect.ownKeys(ctx.req).find((s) => String(s) === 'Symbol(NextRequestMeta)')]
-// 		url = new URL(nextRequestMeta.__NEXT_INIT_URL)
-// 	} catch (error) {
-// 		//
-// 	}
-// 	if (has(session, 'auth.role.role_id')) {
-// 		await axios
-// 			.request({
-// 				method: 'get',
-// 				baseURL: url?.origin,
-// 				headers: ctx.req ? { cookie: ctx.req.headers.cookie } : undefined,
-// 				url: '/api/auth/get-menu-permissions/' + session.auth.role.role_id
-// 			})
-// 			.then((res) => {
-// 				globalStore.set('authMenu', res.data.data.permission)
-// 			})
-// 	}
-// 	let pageProps = {}
-// 	if (Component.getInitialProps) {
-// 		pageProps = await Component.getInitialProps(ctx)
-// 	}
-// 	return { pageProps }
-// }
+EntryPoint.getInitialProps = async (appContext) => {
+	const session = await getIronSessionHandler(appContext.ctx.req, appContext.ctx.res)
 
-export default App
+	const pageProps = await App.getInitialProps(appContext)
+	return { ...pageProps, userData: { email: session?.auth?.email } }
+}
+
+export default EntryPoint

@@ -1,18 +1,21 @@
-import { Button, Card, Checkbox, Col, Divider, Form, Input, Row, Typography } from 'antd'
+import { LockOutlined, MailOutlined } from '@ant-design/icons'
+import { Button, Card, Checkbox, Col, Divider, Form, Input, Row, Typography, theme } from 'antd'
 import axios from 'axios'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
 import MainCaptcha from '@/components/Captcha'
+import ConditionalRender from '@/components/ConditionalRender'
+import FormErrorPanel from '@/components/FormErrorPanel'
 import asyncLocalStorage from '@/utils/async-local-storage'
-import errorModal from '@/utils/error-modal'
 import routeGuard from '@/utils/route-guard'
-import { withSession } from '@/utils/session-wrapper'
+import getIronSessionHandler from '@/utils/session'
 
 const { Title } = Typography
 
 const LoginPage = () => {
+	const [errors, setErrors] = useState([])
 	const router = useRouter()
 	const [form] = Form.useForm()
 	const [isLoading, setIsLoading] = useState(false)
@@ -20,7 +23,11 @@ const LoginPage = () => {
 	const verifiedCallback = (token) => {
 		form.setFieldValue('captcha', token)
 	}
+	const {
+		token: { colorBorder }
+	} = theme.useToken()
 	const handleSubmit = async (values) => {
+		setErrors([])
 		setIsLoading(true)
 		const { email, password, remember_me, captcha } = values
 		return await axios
@@ -30,6 +37,7 @@ const LoginPage = () => {
 				data: { email, password, captcha }
 			})
 			.then((res) => {
+				setErrors([])
 				if (res.status === 200) {
 					if (!!remember_me) {
 						asyncLocalStorage.setItem('_rm', email)
@@ -40,11 +48,18 @@ const LoginPage = () => {
 				}
 			})
 			.catch((err) => {
-				errorModal(err)
+				formErrorHandler(err)
 				setIsLoading(false)
 				captchaRef.current.resetCaptcha()
 				form.setFieldValue('captcha', undefined)
 			})
+	}
+	const formErrorHandler = (error) => {
+		const message = error?.response?.data?.message || ''
+		const errors = error?.response?.data?.errors || []
+		if (message) {
+			setErrors((prev) => [...prev, { message, errors }])
+		}
 	}
 	useEffect(() => {
 		asyncLocalStorage.getItem('_rm').then((res) => {
@@ -70,7 +85,6 @@ const LoginPage = () => {
 						<Card>
 							<div
 								style={{
-									// margin: '2rem 0 2rem 0',
 									padding: '0 2rem 0 2rem',
 									display: 'flex',
 									gap: '1rem',
@@ -81,6 +95,7 @@ const LoginPage = () => {
 								<Image src="/_assets/images/logo.png" width={100} height={100} alt="logo" />
 								<Title level={3}>Login</Title>
 								<Form
+									size="large"
 									form={form}
 									onFinish={handleSubmit}
 									autoComplete="off"
@@ -90,7 +105,6 @@ const LoginPage = () => {
 										width: '100%'
 									}}>
 									<Form.Item
-										// label="Email"
 										name="email"
 										rules={[
 											{
@@ -99,10 +113,9 @@ const LoginPage = () => {
 												message: 'Please input your email!'
 											}
 										]}>
-										<Input placeholder='Email'/>
+										<Input placeholder="Email" prefix={<MailOutlined style={{ color: colorBorder }} />} />
 									</Form.Item>
 									<Form.Item
-										// label="Password"
 										name="password"
 										rules={[
 											{
@@ -110,7 +123,7 @@ const LoginPage = () => {
 												message: 'Please input your password!'
 											}
 										]}>
-										<Input.Password placeholder='Password'/>
+										<Input.Password placeholder="Password" prefix={<LockOutlined style={{ color: colorBorder }} />} />
 									</Form.Item>
 									<Form.Item name="remember_me" valuePropName="checked">
 										<Checkbox>Remember me</Checkbox>
@@ -131,12 +144,17 @@ const LoginPage = () => {
 										/>
 									</Form.Item>
 									<Form.Item>
-										<Row justify="end" gutter={[24,24]}>
+										<Row justify="end" gutter={[24, 24]}>
 											<Col span={24}>
 												<Button block type="primary" htmlType="submit" loading={isLoading}>
 													Login
 												</Button>
 											</Col>
+											<ConditionalRender condition={errors.length > 0}>
+												<Col span={24}>
+													<FormErrorPanel errorData={errors} />
+												</Col>
+											</ConditionalRender>
 											<Col>
 												<Link href="/forgot-password">Forgot password</Link>
 											</Col>
@@ -161,12 +179,12 @@ const LoginPage = () => {
 }
 
 export default LoginPage
-export const getServerSideProps = withSession(async function ({ req }) {
-	const accessToken = req.session?.auth?.accessToken
+export const getServerSideProps = async ({ req, res }) => {
+	const session = await getIronSessionHandler(req, res)
+	const accessToken = session?.auth?.accessToken
 	const isLoggedOut = !accessToken
 	const validator = [isLoggedOut]
-
 	return routeGuard(validator, '/', {
 		props: {}
 	})
-})
+}

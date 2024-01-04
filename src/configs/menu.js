@@ -1,4 +1,4 @@
-import { AppstoreOutlined, DatabaseOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, DatabaseOutlined, UserOutlined } from '@ant-design/icons'
 import validateMenu from '@/utils/validate-menu'
 
 /**
@@ -35,11 +35,6 @@ const menus = (authMenu) =>
 						label: 'Auto Complete'
 					}
 				]
-			},
-			{
-				key: '/logout',
-				label: 'Logout',
-				icon: <LogoutOutlined />
 			}
 		],
 		authMenu

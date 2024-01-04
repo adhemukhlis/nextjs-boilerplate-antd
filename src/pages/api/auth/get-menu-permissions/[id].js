@@ -1,8 +1,7 @@
 import { get } from 'lodash'
 import apiService from '@/utils/apiService'
-import ssrCache from '../../../../../trash/utils/cache'
-import { withSessionRoute } from '@/utils/session-wrapper'
-export default withSessionRoute(async (req, res) => {
+import ssrCache from '@/utils/cache'
+const api = async (req, res) => {
 	const id = get(req, 'query.id', '')
 	const forceUpdate = get(req, 'query.force', false) === 'true'
 	if (req.method === 'GET') {
@@ -24,4 +23,5 @@ export default withSessionRoute(async (req, res) => {
 	} else {
 		res.status(405).send({ message: 'Method not allowed' })
 	}
-})
+}
+export default api

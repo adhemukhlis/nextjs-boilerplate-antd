@@ -1,8 +1,9 @@
 import apiService from '@/utils/apiService'
-import { withSessionRoute } from '@/utils/session-wrapper'
+import getIronSessionHandler from '@/utils/session'
 
-export default withSessionRoute(async (req, res) => {
-	const token = req.session?.auth?.accessToken
+const api = async (req, res) => {
+	const session = await getIronSessionHandler(req, res)
+	const token = session?.auth?.accessToken
 	if (req.method === 'POST') {
 		try {
 			const response = await apiService.request({
@@ -22,4 +23,5 @@ export default withSessionRoute(async (req, res) => {
 	} else {
 		res.status(405).send({ message: 'Method not allowed' })
 	}
-})
+}
+export default api

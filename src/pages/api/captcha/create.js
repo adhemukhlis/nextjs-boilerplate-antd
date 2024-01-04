@@ -1,10 +1,12 @@
-import { withSessionRoute } from '@/utils/session-wrapper'
+import getIronSessionHandler from '@/utils/session'
 
-export default withSessionRoute(function handler(req, res) {
+const api = async (req, res) => {
+	const session = await getIronSessionHandler(req, res)
 	const sliderCaptcha = require('@slider-captcha/core')
 	sliderCaptcha.create().then(async function ({ data, solution }) {
-		req.session.captcha = solution
-		await req.session.save()
+		session.captcha = solution
+		await session.save()
 		res.status(200).send(data)
 	})
-})
+}
+export default api

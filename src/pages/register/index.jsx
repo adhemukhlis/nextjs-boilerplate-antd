@@ -7,7 +7,7 @@ import { useRef, useState } from 'react'
 import MainCaptcha from '@/components/Captcha'
 import errorModal from '@/utils/error-modal'
 import routeGuard from '@/utils/route-guard'
-import { withSession } from '@/utils/session-wrapper'
+import getIronSessionHandler from '@/utils/session'
 
 const { Title } = Typography
 const RegisterPage = () => {
@@ -216,11 +216,12 @@ const RegisterPage = () => {
 
 export default RegisterPage
 
-export const getServerSideProps = withSession(async function ({ req }) {
-	const accessToken = req.session?.auth?.accessToken
+export const getServerSideProps = async ({ req, res }) => {
+	const session = await getIronSessionHandler(req, res)
+	const accessToken = session?.auth?.accessToken
 	const isLoggedOut = !accessToken
 	const validator = [isLoggedOut]
 	return routeGuard(validator, '/', {
 		props: {}
 	})
-})
+}

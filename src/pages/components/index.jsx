@@ -11,8 +11,7 @@ const items = [
 	{
 		label: 'Auto Complete',
 		value: 'autoComplete'
-	},
-	
+	}
 ]
 const ItemComponent = ({ item: { label, value } }) => (
 	<Link href={`/components/${value}`}>

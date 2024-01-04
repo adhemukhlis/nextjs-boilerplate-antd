@@ -1,20 +1,30 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  publicRuntimeConfig: {
+	publicRuntimeConfig: {
 		// Will be available on both server and client
 		AppName: 'NextJS Boilerplate AntDesign'
 	},
-  env: {
+	env: {
 		BACKEND_API_HOST: process.env.NEXT_BACKEND_API_HOST,
 		SESSION_KEY: process.env.SESSION_KEY
 	},
-  eslint: {
+	eslint: {
 		dirs: ['.']
 	},
-  poweredByHeader: false,
+	poweredByHeader: false,
 	trailingSlash: false,
-	transpilePackages: ['antd'],
-  reactStrictMode: false,
+	transpilePackages: [
+		'antd',
+		'rc-util',
+		'@babel/runtime',
+		'@ant-design/icons',
+		'@ant-design/icons-svg',
+		'rc-pagination',
+		'rc-picker',
+		'rc-tree',
+		'rc-table'
+	],
+	reactStrictMode: false
 }
 
 module.exports = nextConfig

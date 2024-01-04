@@ -1,7 +1,6 @@
 import apiService from '@/utils/apiService'
-import { withSessionRoute } from '@/utils/session-wrapper'
 
-export default withSessionRoute(async (req, res) => {
+const api = async (req, res) => {
 	const { new_password, confirm_password, email, token } = req.body
 	if (req.method === 'POST') {
 		try {
@@ -18,4 +17,5 @@ export default withSessionRoute(async (req, res) => {
 	} else {
 		res.status(405).send({ message: 'Method not allowed' })
 	}
-})
+}
+export default api

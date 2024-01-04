@@ -27,7 +27,9 @@ const mock = async (req, res) => {
 						}
 					})
 				} else {
-					return res.status(401).json({ message: 'incorrect credential!' })
+					return res
+						.status(401)
+						.json({ message: 'Incorrect Credential!', errors: ['The email or password you entered is incorrect'] })
 				}
 			} else {
 				return res.status(400).send({

@@ -1,7 +1,6 @@
 import { createPdf, errorPdfHtmlTemplate } from '../../../../trash/components/PdfGenerator'
-import { withSessionRoute } from '@/utils/session-wrapper'
 
-export default withSessionRoute(async (req, res) => {
+const api = async (req, res) => {
 	// console.log('ini req body', req.body)
 	const data = req.body
 	// console.log('ini data:', data)
@@ -107,4 +106,5 @@ export default withSessionRoute(async (req, res) => {
 	} else {
 		res.status(405).send({ message: 'Method not allowed' })
 	}
-})
+}
+export default api
