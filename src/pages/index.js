@@ -1,4 +1,6 @@
 import { Typography } from 'antd'
+import axios from 'axios'
+import { useEffect } from 'react'
 import routeGuard from '@/utils/route-guard'
 import getIronSessionHandler from '@/utils/session'
 // import dayjs from 'dayjs'
@@ -13,7 +15,15 @@ const Index = () => {
 	// 	transaction: Math.round(Math.random() * 100),
 	// 	register: Math.round(Math.random() * 100)
 	// }))
-
+	useEffect(() => {
+		fetchData()
+	}, [])
+	const fetchData = async () => {
+		return await axios.request({
+			method: 'GET',
+			url: '/api/auth/me'
+		})
+	}
 	return (
 		<>
 			<div
