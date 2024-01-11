@@ -1,12 +1,11 @@
 import { AppstoreOutlined, DatabaseOutlined, UserOutlined } from '@ant-design/icons'
-import validateMenu from '@/utils/validate-menu'
 
 /**
  * key === path page without trailing slash, check window.location.pathname
  */
 
-const menus = (authMenu) =>
-	validateMenu(
+const menus =
+
 		[
 			{
 				key: '/master-data',
@@ -36,8 +35,6 @@ const menus = (authMenu) =>
 					}
 				]
 			}
-		],
-		authMenu
-	)
+		]
 
 export default menus

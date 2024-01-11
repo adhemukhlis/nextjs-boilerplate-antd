@@ -1,74 +1,49 @@
 import { LockOutlined, MailOutlined } from '@ant-design/icons'
 import { Button, Card, Checkbox, Col, Divider, Form, Input, Row, Typography, theme } from 'antd'
-import axios from 'axios'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect, useRef, useState } from 'react'
-import MainCaptcha from '@/components/Captcha'
-import ConditionalRender from '@/components/ConditionalRender'
-import FormErrorPanel from '@/components/FormErrorPanel'
-import asyncLocalStorage from '@/utils/async-local-storage'
-import routeGuard from '@/utils/route-guard'
-import getIronSessionHandler from '@/utils/session'
+import { getSession, signIn } from 'next-auth/react'
+import { useState } from 'react'
+import isEmpty from '@/utils/is-empty'
 
 const { Title } = Typography
 
-const LoginPage = () => {
-	const [errors, setErrors] = useState([])
+const LoginPage = ({ session }) => {
 	const router = useRouter()
 	const [form] = Form.useForm()
 	const [isLoading, setIsLoading] = useState(false)
-	const captchaRef = useRef(null)
-	const verifiedCallback = (token) => {
-		form.setFieldValue('captcha', token)
-	}
+	console.log(session)
 	const {
 		token: { colorBorder }
 	} = theme.useToken()
 	const handleSubmit = async (values) => {
-		setErrors([])
 		setIsLoading(true)
-		const { email, password, remember_me, captcha } = values
-		return await axios
-			.request({
-				method: 'post',
-				url: '/api/auth/login',
-				data: { email, password, captcha }
-			})
-			.then((res) => {
-				setErrors([])
-				if (res.status === 200) {
-					if (!!remember_me) {
-						asyncLocalStorage.setItem('_rm', email)
-					} else {
-						asyncLocalStorage.setItem('_rm', '')
-					}
-					router.push('/')
-				}
-			})
-			.catch((err) => {
-				formErrorHandler(err)
-				setIsLoading(false)
-				captchaRef.current.resetCaptcha()
-				form.setFieldValue('captcha', undefined)
-			})
-	}
-	const formErrorHandler = (error) => {
-		const message = error?.response?.data?.message || ''
-		const errors = error?.response?.data?.errors || []
-		if (message) {
-			setErrors((prev) => [...prev, { message, errors }])
-		}
-	}
-	useEffect(() => {
-		asyncLocalStorage.getItem('_rm').then((res) => {
-			if (!!res) {
-				form.setFieldValue('email', res)
-				form.setFieldValue('remember_me', true)
-			}
+		const { email, password, remember_me } = values
+		await signIn('credentials', {
+			redirect: false,
+			email,
+			password
 		})
-	}, [])
+			.then((response) => {
+				console.log(response)
+				router.replace('/')
+			})
+			.catch((error) => {
+				console.log(error)
+			})
+			.finally(() => {
+				setIsLoading(false)
+			})
+	}
+	// useEffect(() => {
+	// 	asyncLocalStorage.getItem('_rm').then((res) => {
+	// 		if (!!res) {
+	// 			form.setFieldValue('email', res)
+	// 			form.setFieldValue('remember_me', true)
+	// 		}
+	// 	})
+	// }, [])
 
 	return (
 		<>
@@ -128,21 +103,6 @@ const LoginPage = () => {
 									<Form.Item name="remember_me" valuePropName="checked">
 										<Checkbox>Remember me</Checkbox>
 									</Form.Item>
-									<Form.Item
-										name="captcha"
-										rules={[
-											{
-												required: true,
-												message: 'please do captcha check'
-											}
-										]}>
-										<MainCaptcha
-											ref={captchaRef}
-											create="/api/captcha/create"
-											verify="/api/captcha/verify"
-											callback={verifiedCallback}
-										/>
-									</Form.Item>
 									<Form.Item>
 										<Row justify="end" gutter={[24, 24]}>
 											<Col span={24}>
@@ -150,11 +110,6 @@ const LoginPage = () => {
 													Login
 												</Button>
 											</Col>
-											<ConditionalRender condition={errors.length > 0}>
-												<Col span={24}>
-													<FormErrorPanel errorData={errors} />
-												</Col>
-											</ConditionalRender>
 											<Col>
 												<Link href="/forgot-password">Forgot password</Link>
 											</Col>
@@ -179,12 +134,18 @@ const LoginPage = () => {
 }
 
 export default LoginPage
-export const getServerSideProps = async ({ req, res }) => {
-	const session = await getIronSessionHandler(req, res)
-	const accessToken = session?.auth?.accessToken
-	const isLoggedOut = !accessToken
-	const validator = [isLoggedOut]
-	return routeGuard(validator, '/', {
-		props: {}
-	})
+export const getServerSideProps = async ({ req }) => {
+	const session = await getSession({ req: req })
+	if (!isEmpty(session?.auth?.accessToken)) {
+		return {
+			redirect: {
+				destination: '/',
+				permanent: false
+			}
+		}
+	}
+
+	return {
+		props: { session }
+	}
 }

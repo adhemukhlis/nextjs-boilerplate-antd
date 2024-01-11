@@ -21,7 +21,6 @@ export default class MyDocument extends Document {
 			styles: (
 				<>
 					{initialProps.styles}
-					{/* This is hack, `extractStyle` does not currently support returning JSX or related data. */}
 					<script
 						dangerouslySetInnerHTML={{
 							__html: `</script>${extractStyle(cache)}<script>`
