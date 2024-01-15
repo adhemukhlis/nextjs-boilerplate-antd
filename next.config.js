@@ -1,12 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	publicRuntimeConfig: {
-		// Will be available on both server and client
 		AppName: 'NextJS Boilerplate AntDesign'
-	},
-	env: {
-		BACKEND_API_HOST: process.env.NEXT_BACKEND_API_HOST,
-		SESSION_KEY: process.env.SESSION_KEY
 	},
 	eslint: {
 		dirs: ['.']
@@ -15,14 +10,14 @@ const nextConfig = {
 	trailingSlash: false,
 	transpilePackages: [
 		'antd',
-		'rc-util',
-		'@babel/runtime',
-		'@ant-design/icons',
-		'@ant-design/icons-svg',
-		'rc-pagination',
-		'rc-picker',
-		'rc-tree',
-		'rc-table'
+		// 'rc-util',
+		// '@babel/runtime',
+		// '@ant-design/icons',
+		// '@ant-design/icons-svg',
+		// 'rc-pagination',
+		// 'rc-picker',
+		// 'rc-tree',
+		// 'rc-table'
 	],
 	reactStrictMode: false
 }

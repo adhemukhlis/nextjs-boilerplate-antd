@@ -6,11 +6,11 @@ import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
 import { IconArrowRightFromBracket } from '../icons/thin'
 import menus from '@/configs/menu'
-import asyncLocalStorage from '@/utils/async-local-storage'
+// import asyncLocalStorage from '@/utils/async-local-storage'
 
 const { Content, Sider, Header } = Layout
 const { Text } = Typography
-const LayoutComponent = ({ children, userData }) => {
+const LayoutComponent = ({ children }) => {
 	const [messageApi, contextHolder] = message.useMessage()
 	const [collapsed, setCollapsed] = useState(true)
 	const router = useRouter()
@@ -45,12 +45,12 @@ const LayoutComponent = ({ children, userData }) => {
 	}
 	const collapsedHandler = (value) => {
 		setCollapsed(value)
-		asyncLocalStorage.setItem('_sc', value)
+		// asyncLocalStorage.setItem('_sc', value)
 	}
 	const items = [
 		{
 			key: 'profile',
-			label: <Text strong>{userData.email}</Text>,
+			label: <Text strong>{'userData?.email'}</Text>,
 			icon: <UserOutlined />
 		},
 		{
@@ -61,9 +61,9 @@ const LayoutComponent = ({ children, userData }) => {
 		}
 	]
 	useEffect(() => {
-		asyncLocalStorage.getItem('_sc').then((res) => {
-			setCollapsed(JSON.parse(res ?? 'true'))
-		})
+		// asyncLocalStorage.getItem('_sc').then((res) => {
+		// 	setCollapsed(JSON.parse(res ?? 'true'))
+		// })
 	}, [])
 	return (
 		<>
@@ -113,14 +113,14 @@ const LayoutComponent = ({ children, userData }) => {
 						theme="light"
 						defaultSelectedKeys={[currentPath]}
 						mode="inline"
-						items={menus([])}
+						items={menus}
 						onSelect={handleSelectMenu}
 					/>
 				</Sider>
 				<Layout>
 					<Header style={{ padding: '1rem', background: colorBgContainer, display: 'flex', justifyContent: 'flex-end' }}>
 						<Dropdown menu={{ items }} placement="bottomRight" arrow trigger={['click']}>
-							<Avatar size="large" style={{ cursor: 'pointer' }} src={`https://ui-avatars.com/api/?name=${userData.email}`} />
+							<Avatar size="large" style={{ cursor: 'pointer' }} src={`https://ui-avatars.com/api/?name=${'userData?.email'}`} />
 						</Dropdown>
 					</Header>
 					<Content
