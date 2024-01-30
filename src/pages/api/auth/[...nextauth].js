@@ -33,20 +33,16 @@ export default NextAuth({
 		})
 	],
 	callbacks: {
-		async signIn({ ...other }) {
-			console.log('signIn', { ...other })
-
+		async signIn({ ..._other }) {
 			return true
 		},
-		async jwt({ token, user, ...other }) {
-			console.log('JWT', { token, user, ...other })
+		async jwt({ token, user, ..._other }) {
 			if (user) {
 				token.payload = user.payload
 			}
 			return token
 		},
-		async session({ session, token, ...other }) {
-			console.log('SESSION', { session, token, ...other })
+		async session({ session, token, ..._other }) {
 			session.auth = token.payload.auth
 			session.user = token.payload.userdata
 			return session

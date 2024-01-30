@@ -4,16 +4,17 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { getSession, signIn } from 'next-auth/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import asyncLocalStorage from '@/utils/async-local-storage'
 import isEmpty from '@/utils/is-empty'
+import routeGuard from '@/utils/route-guard'
 
 const { Title } = Typography
 
-const LoginPage = ({ session }) => {
+const LoginPage = () => {
 	const router = useRouter()
 	const [form] = Form.useForm()
 	const [isLoading, setIsLoading] = useState(false)
-	console.log(session)
 	const {
 		token: { colorBorder }
 	} = theme.useToken()
@@ -26,24 +27,30 @@ const LoginPage = ({ session }) => {
 			password
 		})
 			.then((response) => {
-				console.log(response)
-				router.replace('/')
+				if ([200].includes(response.status)) {
+					if (!!remember_me) {
+						asyncLocalStorage.setItem('_rm', email)
+					} else {
+						asyncLocalStorage.setItem('_rm', '')
+					}
+					router.replace('/')
+				}
 			})
-			.catch((error) => {
-				console.log(error)
+			.catch((_error) => {
+				// console.log(error)
 			})
 			.finally(() => {
 				setIsLoading(false)
 			})
 	}
-	// useEffect(() => {
-	// 	asyncLocalStorage.getItem('_rm').then((res) => {
-	// 		if (!!res) {
-	// 			form.setFieldValue('email', res)
-	// 			form.setFieldValue('remember_me', true)
-	// 		}
-	// 	})
-	// }, [])
+	useEffect(() => {
+		asyncLocalStorage.getItem('_rm').then((res) => {
+			if (!!res) {
+				form.setFieldValue('email', res)
+				form.setFieldValue('remember_me', true)
+			}
+		})
+	}, [])
 
 	return (
 		<>
@@ -136,16 +143,12 @@ const LoginPage = ({ session }) => {
 export default LoginPage
 export const getServerSideProps = async ({ req }) => {
 	const session = await getSession({ req: req })
-	if (!isEmpty(session?.auth?.accessToken)) {
-		return {
-			redirect: {
-				destination: '/',
-				permanent: false
-			}
-		}
-	}
 
-	return {
-		props: { session }
-	}
+	const isLoggedOut = isEmpty(session?.auth?.accessToken)
+
+	const validator = [isLoggedOut]
+
+	return routeGuard(validator, '/', {
+		props: {}
+	})
 }

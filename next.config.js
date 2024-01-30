@@ -19,7 +19,15 @@ const nextConfig = {
 		// 'rc-tree',
 		// 'rc-table'
 	],
-	reactStrictMode: false
+	reactStrictMode: false,
+	images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'ui-avatars.com'
+      },
+    ],
+  }
 }
 
 module.exports = nextConfig

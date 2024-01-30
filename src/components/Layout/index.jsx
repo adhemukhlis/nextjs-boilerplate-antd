@@ -1,16 +1,18 @@
 import { UserOutlined } from '@ant-design/icons'
 import { Dropdown, Layout, Menu, theme, message, Avatar, Typography } from 'antd'
-import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
+import { signOut, useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
 import { IconArrowRightFromBracket } from '../icons/thin'
 import menus from '@/configs/menu'
-// import asyncLocalStorage from '@/utils/async-local-storage'
+
+import asyncLocalStorage from '@/utils/async-local-storage'
 
 const { Content, Sider, Header } = Layout
 const { Text } = Typography
 const LayoutComponent = ({ children }) => {
+	const session = useSession()
 	const [messageApi, contextHolder] = message.useMessage()
 	const [collapsed, setCollapsed] = useState(true)
 	const router = useRouter()
@@ -31,27 +33,20 @@ const LayoutComponent = ({ children }) => {
 			type: 'loading',
 			content: 'Logging Out..'
 		})
-		axios.request({ method: 'POST', url: '/api/auth/logout' }).then(async (res) => {
-			messageApi.open({
-				key: 'logout',
-				type: 'success',
-				content: res.data.message,
-				duration: 2
-			})
-			setTimeout(() => {
-				router.replace('/login')
-			}, 2000)
+		signOut().then(() => {
+			router.push('/')
 		})
 	}
 	const collapsedHandler = (value) => {
 		setCollapsed(value)
-		// asyncLocalStorage.setItem('_sc', value)
+		asyncLocalStorage.setItem('_sc', value)
 	}
 	const items = [
 		{
 			key: 'profile',
-			label: <Text strong>{'userData?.email'}</Text>,
-			icon: <UserOutlined />
+			label: <Text strong>{session?.data?.user?.username}</Text>,
+			icon: <UserOutlined />,
+			onClick: () => router.push('/profile')
 		},
 		{
 			key: 'logout',
@@ -61,9 +56,9 @@ const LayoutComponent = ({ children }) => {
 		}
 	]
 	useEffect(() => {
-		// asyncLocalStorage.getItem('_sc').then((res) => {
-		// 	setCollapsed(JSON.parse(res ?? 'true'))
-		// })
+		asyncLocalStorage.getItem('_sc').then((res) => {
+			setCollapsed(JSON.parse(res ?? 'true'))
+		})
 	}, [])
 	return (
 		<>
@@ -109,18 +104,12 @@ const LayoutComponent = ({ children }) => {
 									})}
 						/>
 					</div>
-					<Menu
-						theme="light"
-						defaultSelectedKeys={[currentPath]}
-						mode="inline"
-						items={menus}
-						onSelect={handleSelectMenu}
-					/>
+					<Menu theme="light" defaultSelectedKeys={[currentPath]} mode="inline" items={menus} onSelect={handleSelectMenu} />
 				</Sider>
 				<Layout>
 					<Header style={{ padding: '1rem', background: colorBgContainer, display: 'flex', justifyContent: 'flex-end' }}>
 						<Dropdown menu={{ items }} placement="bottomRight" arrow trigger={['click']}>
-							<Avatar size="large" style={{ cursor: 'pointer' }} src={`https://ui-avatars.com/api/?name=${'userData?.email'}`} />
+							<Avatar size="large" style={{ cursor: 'pointer' }} src={session?.data?.user?.picture || ''} />
 						</Dropdown>
 					</Header>
 					<Content
