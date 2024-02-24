@@ -7,10 +7,11 @@ const Index = () => {
 		<div>
 			hehehe
 			<button onClick={() => router.push({ pathname: pathname + '/add' })}>add</button>
-			<button onClick={() => router.replace({pathname: pathname + '/detail/[path]', query: { path: 'nice' } })}>{`${pathname+ '/detail'}`}</button>
+			<button
+				onClick={() =>
+					router.replace({ pathname: pathname + '/detail/[path]', query: { path: 'nice' } })
+				}>{`${pathname + '/detail'}`}</button>
 		</div>
 	)
 }
 export default Index
-
-

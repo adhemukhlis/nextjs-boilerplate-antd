@@ -28,7 +28,7 @@ export const getServerSideProps = async ({ req }) => {
 
 	const validator = [isLoggedIn]
 
-	return routeGuard(validator, '/signin', {
+	return routeGuard(validator, '/login', {
 		props: {}
 	})
 }

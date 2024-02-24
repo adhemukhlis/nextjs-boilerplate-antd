@@ -3,7 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 
 export default NextAuth({
 	pages: {
-		signIn: '/signin'
+		signIn: '/login'
 	},
 	providers: [
 		CredentialsProvider({

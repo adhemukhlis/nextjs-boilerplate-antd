@@ -8,7 +8,7 @@ const menus = [
 	{
 		key: '/',
 		label: 'Dashboard',
-		icon: <HomeOutlined />,
+		icon: <HomeOutlined />
 		// children: [
 		// 	{
 		// 		key: '/users',
@@ -17,7 +17,7 @@ const menus = [
 		// 		icon: <UserOutlined />
 		// 	}
 		// ]
-	},
+	}
 	// {
 	// 	key: '/components',
 	// 	label: 'Components',
