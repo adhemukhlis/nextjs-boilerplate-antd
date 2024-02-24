@@ -5,6 +5,7 @@ const { pickBy, isNumber, isFinite, isBoolean, isEmpty } = require('lodash')
  * @param {boolean} [allowEmpty=false] - Whether to allow empty values.
  * @returns {Object} - The compacted object.
  */
+
 const compactObject = (obj, allowEmpty = false) =>
 	pickBy(obj, (v) => (isNumber(v) && isFinite(v)) || isBoolean(v) || !isEmpty(v) || allowEmpty)
 export default compactObject

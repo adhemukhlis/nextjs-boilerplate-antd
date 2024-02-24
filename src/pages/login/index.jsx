@@ -1,17 +1,21 @@
 import { LockOutlined, MailOutlined } from '@ant-design/icons'
 import { Button, Card, Checkbox, Col, Divider, Form, Input, Row, Typography, theme } from 'antd'
+import axios from 'axios'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { getSession, signIn } from 'next-auth/react'
 import { useEffect, useState } from 'react'
-import asyncLocalStorage from '@/utils/async-local-storage'
-import isEmpty from '@/utils/is-empty'
-import routeGuard from '@/utils/route-guard'
+import ConditionalRender from '@/components/ConditionalRender'
+import FormErrorPanel from '@/components/FormErrorPanel'
+import asyncLocalStorage from '@/utils/asyncLocalStorage'
+import isEmpty from '@/utils/isEmpty'
+import routeGuard from '@/utils/routeGuard'
+import { withSession } from '@/utils/sessionWrapper'
 
 const { Title } = Typography
 
 const LoginPage = () => {
+	const [errors, setErrors] = useState([])
 	const router = useRouter()
 	const [form] = Form.useForm()
 	const [isLoading, setIsLoading] = useState(false)
@@ -21,27 +25,34 @@ const LoginPage = () => {
 	const handleSubmit = async (values) => {
 		setIsLoading(true)
 		const { email, password, remember_me } = values
-		await signIn('credentials', {
-			redirect: false,
-			email,
-			password
-		})
-			.then((response) => {
-				if ([200].includes(response.status)) {
+		return await axios
+			.request({
+				method: 'post',
+				url: '/api/auth/login',
+				data: { email, password }
+			})
+			.then((res) => {
+				setErrors([])
+				if (res.status === 200) {
 					if (!!remember_me) {
 						asyncLocalStorage.setItem('_rm', email)
 					} else {
 						asyncLocalStorage.setItem('_rm', '')
 					}
-					router.replace('/')
+					router.push('/')
 				}
 			})
-			.catch((_error) => {
-				// console.log(error)
-			})
-			.finally(() => {
+			.catch((err) => {
+				formErrorHandler(err)
 				setIsLoading(false)
 			})
+	}
+	const formErrorHandler = (error) => {
+		const message = error?.response?.data?.message || ''
+		const errors = error?.response?.data?.errors || []
+		if (message) {
+			setErrors((prev) => [...prev, { message, errors }])
+		}
 	}
 	useEffect(() => {
 		asyncLocalStorage.getItem('_rm').then((res) => {
@@ -117,6 +128,11 @@ const LoginPage = () => {
 													Login
 												</Button>
 											</Col>
+											<ConditionalRender condition={errors.length > 0}>
+												<Col span={24}>
+													<FormErrorPanel errorData={errors} />
+												</Col>
+											</ConditionalRender>
 											<Col>
 												<Link href="/forgot-password">Forgot password</Link>
 											</Col>
@@ -141,14 +157,12 @@ const LoginPage = () => {
 }
 
 export default LoginPage
-export const getServerSideProps = async ({ req }) => {
-	const session = await getSession({ req: req })
 
-	const isLoggedOut = isEmpty(session?.auth?.accessToken)
-
+export const getServerSideProps = withSession(async ({ req }) => {
+	const accessToken = req.session?.auth?.access_token
+	const isLoggedOut = isEmpty(accessToken)
 	const validator = [isLoggedOut]
-
 	return routeGuard(validator, '/', {
 		props: {}
 	})
-}
+})
