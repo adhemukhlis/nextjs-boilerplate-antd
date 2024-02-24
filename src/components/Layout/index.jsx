@@ -1,18 +1,16 @@
 import { UserOutlined } from '@ant-design/icons'
 import { Dropdown, Layout, Menu, theme, message, Avatar, Typography } from 'antd'
+import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { signOut, useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
 import { IconArrowRightFromBracket } from '../icons/thin'
 import menus from '@/configs/menu'
-
-import asyncLocalStorage from '@/utils/async-local-storage'
+import asyncLocalStorage from '@/utils/asyncLocalStorage'
 
 const { Content, Sider, Header } = Layout
 const { Text } = Typography
-const LayoutComponent = ({ children }) => {
-	const session = useSession()
+const LayoutComponent = ({ children, user }) => {
 	const [messageApi, contextHolder] = message.useMessage()
 	const [collapsed, setCollapsed] = useState(true)
 	const router = useRouter()
@@ -33,8 +31,14 @@ const LayoutComponent = ({ children }) => {
 			type: 'loading',
 			content: 'Logging Out..'
 		})
-		signOut().then(() => {
-			router.push('/')
+		axios.request({ method: 'POST', url: '/api/logout' }).then(async (res) => {
+			messageApi.open({
+				key: 'logout',
+				type: 'success',
+				content: res.data.message,
+				duration: 4
+			})
+			router.replace('/login')
 		})
 	}
 	const collapsedHandler = (value) => {
@@ -44,7 +48,7 @@ const LayoutComponent = ({ children }) => {
 	const items = [
 		{
 			key: 'profile',
-			label: <Text strong>{session?.data?.user?.username}</Text>,
+			label: <Text strong>{user.username}</Text>,
 			icon: <UserOutlined />,
 			onClick: () => router.push('/profile')
 		},
@@ -109,7 +113,7 @@ const LayoutComponent = ({ children }) => {
 				<Layout>
 					<Header style={{ padding: '1rem', background: colorBgContainer, display: 'flex', justifyContent: 'flex-end' }}>
 						<Dropdown menu={{ items }} placement="bottomRight" arrow trigger={['click']}>
-							<Avatar size="large" style={{ cursor: 'pointer' }} src={session?.data?.user?.picture || ''} />
+							<Avatar size="large" style={{ cursor: 'pointer' }} src={`https://ui-avatars.com/api/?name=${user?.username}`} />
 						</Dropdown>
 					</Header>
 					<Content
