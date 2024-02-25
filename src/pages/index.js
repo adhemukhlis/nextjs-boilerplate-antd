@@ -1,36 +1,17 @@
-import { Typography } from 'antd'
-import { getSession } from 'next-auth/react'
-import isEmpty from '@/utils/is-empty'
+import routeGuard from '@/utils/routeGuard'
+import { withSession } from '@/utils/sessionWrapper'
 
-const { Title } = Typography
-const Index = () => {
-	return (
-		<>
-			<div
-				style={{
-					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center',
-					height: '100%',
-					flexDirection: 'column'
-				}}>
-				<Title>NextJS Boilerplate Ant Design</Title>
-			</div>
-		</>
-	)
+const RedirectEmpty = () => {
+	return <></>
 }
-export default Index
-export const getServerSideProps = async ({ req, res, query, ...other }) => {
-	const session = await getSession({ req: req })
-	if (isEmpty(session?.auth?.accessToken)) {
-		return {
-			redirect: {
-				destination: '/signin',
-				permanent: false
-			}
+export default RedirectEmpty
+export const getServerSideProps = withSession(async ({ req }) => {
+	const accessToken = req.session?.auth?.access_token
+	const isLoggedIn = !!accessToken
+	return routeGuard([isLoggedIn], '/login', {
+		redirect: {
+			destination: '/dashboard',
+			permanent: false
 		}
-	}
-	return {
-		props: { session }
-	}
-}
+	})
+})

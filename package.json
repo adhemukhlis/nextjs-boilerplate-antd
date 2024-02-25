@@ -3,8 +3,8 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "npx env-cmd -x -f ./.env.local next dev -p '$PORT'",
-		"start": "npx env-cmd -x next start -p '$PORT'",
+		"dev": "npx env-cmd -x -f ./.env next dev -p '$PORT'",
+		"start": "npx env-cmd -x -f ./.env next start -p '$PORT'",
 		"build": "next build",
 		"lint": "next lint",
 		"prettier-all": "npx prettier --config .prettierrc --write ./src",
@@ -15,9 +15,9 @@
 		"@ant-design/icons": "^5.2.6",
 		"antd": "^5.12.8",
 		"axios": "^1.6.5",
+		"iron-session": "6.3.1",
 		"lodash": "^4.17.21",
 		"next": "13.5.6",
-		"next-auth": "^4.24.5",
 		"react": "^18",
 		"react-dom": "^18"
 	},
@@ -29,6 +29,8 @@
 		"eslint-plugin-import": "^2.29.1",
 		"eslint-plugin-unicorn": "^50.0.1",
 		"eslint-plugin-unused-imports": "^3.0.0",
+		"javascript-obfuscator": "^4.1.0",
+		"nextjs-obfuscator": "^3.0.0",
 		"prettier": "^3.1.1",
 		"yarn-upgrade-all": "^0.7.2"
 	},

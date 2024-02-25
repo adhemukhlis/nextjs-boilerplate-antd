@@ -1,5 +1,10 @@
+const withNextJsObfuscator = require('nextjs-obfuscator')(
+	{ disableConsoleOutput: false, debugProtection: true, ignoreImports:true },
+	{ enabled: 'detect', log: true }
+)
+
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig = withNextJsObfuscator({
 	publicRuntimeConfig: {
 		AppName: 'NextJS Boilerplate AntDesign'
 	},
@@ -9,7 +14,7 @@ const nextConfig = {
 	poweredByHeader: false,
 	trailingSlash: false,
 	transpilePackages: [
-		'antd',
+		'antd'
 		// 'rc-util',
 		// '@babel/runtime',
 		// '@ant-design/icons',
@@ -19,7 +24,15 @@ const nextConfig = {
 		// 'rc-tree',
 		// 'rc-table'
 	],
-	reactStrictMode: false
-}
+	reactStrictMode: false,
+	images: {
+		remotePatterns: [
+			{
+				protocol: 'https',
+				hostname: 'ui-avatars.com'
+			}
+		]
+	}
+})
 
 module.exports = nextConfig

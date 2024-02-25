@@ -1,49 +1,70 @@
 import { LockOutlined, MailOutlined } from '@ant-design/icons'
 import { Button, Card, Checkbox, Col, Divider, Form, Input, Row, Typography, theme } from 'antd'
+import axios from 'axios'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { getSession, signIn } from 'next-auth/react'
-import { useState } from 'react'
-import isEmpty from '@/utils/is-empty'
+import { useEffect, useRef, useState } from 'react'
+import FormErrorPanel from '@/components/FormErrorPanel'
+import { ENCRYPTION_KEY } from '@/configs/keys'
+import asyncLocalStorage from '@/utils/asyncLocalStorage'
+import { hexEncrypt } from '@/utils/hexCipher'
+import isEmpty from '@/utils/isEmpty'
+import routeGuard from '@/utils/routeGuard'
+import { withSession } from '@/utils/sessionWrapper'
 
 const { Title } = Typography
 
-const LoginPage = ({ session }) => {
+const LoginPage = () => {
+	const errorRef = useRef(null)
 	const router = useRouter()
 	const [form] = Form.useForm()
 	const [isLoading, setIsLoading] = useState(false)
-	console.log(session)
 	const {
 		token: { colorBorder }
 	} = theme.useToken()
 	const handleSubmit = async (values) => {
 		setIsLoading(true)
 		const { email, password, remember_me } = values
-		await signIn('credentials', {
-			redirect: false,
-			email,
-			password
-		})
-			.then((response) => {
-				console.log(response)
-				router.replace('/')
+		const encryptedPassword = hexEncrypt(password, ENCRYPTION_KEY)
+		return await axios
+			.request({
+				method: 'post',
+				url: '/api/auth/login',
+				data: { email, password: encryptedPassword }
 			})
-			.catch((error) => {
-				console.log(error)
+			.then((res) => {
+				errorRef.current.clearErrors()
+				if (res.status === 200) {
+					if (!!remember_me) {
+						asyncLocalStorage.setItem('_rm', email)
+					} else {
+						asyncLocalStorage.setItem('_rm', '')
+					}
+					router.push('/')
+				}
 			})
-			.finally(() => {
+			.catch((err) => {
+				formErrorHandler(err)
 				setIsLoading(false)
 			})
 	}
-	// useEffect(() => {
-	// 	asyncLocalStorage.getItem('_rm').then((res) => {
-	// 		if (!!res) {
-	// 			form.setFieldValue('email', res)
-	// 			form.setFieldValue('remember_me', true)
-	// 		}
-	// 	})
-	// }, [])
+	const formErrorHandler = (error) => {
+		// setErrors([])
+		const message = error?.response?.data?.message || ''
+		const errors = error?.response?.data?.errors || []
+		if (message) {
+			errorRef.current.setError({ message, errors })
+		}
+	}
+	useEffect(() => {
+		asyncLocalStorage.getItem('_rm').then((res) => {
+			if (!!res) {
+				form.setFieldValue('email', res)
+				form.setFieldValue('remember_me', true)
+			}
+		})
+	}, [])
 
 	return (
 		<>
@@ -110,6 +131,7 @@ const LoginPage = ({ session }) => {
 													Login
 												</Button>
 											</Col>
+											<FormErrorPanel ref={errorRef} />
 											<Col>
 												<Link href="/forgot-password">Forgot password</Link>
 											</Col>
@@ -134,18 +156,12 @@ const LoginPage = ({ session }) => {
 }
 
 export default LoginPage
-export const getServerSideProps = async ({ req }) => {
-	const session = await getSession({ req: req })
-	if (!isEmpty(session?.auth?.accessToken)) {
-		return {
-			redirect: {
-				destination: '/',
-				permanent: false
-			}
-		}
-	}
 
-	return {
-		props: { session }
-	}
-}
+export const getServerSideProps = withSession(async ({ req }) => {
+	const accessToken = req.session?.auth?.access_token
+	const isLoggedOut = isEmpty(accessToken)
+	const validator = [isLoggedOut]
+	return routeGuard(validator, '/', {
+		props: {}
+	})
+})

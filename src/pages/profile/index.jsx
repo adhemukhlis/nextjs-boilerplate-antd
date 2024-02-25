@@ -1,28 +1,34 @@
-import { Button } from 'antd'
-import { getSession, signOut } from 'next-auth/react'
-import isEmpty from '@/utils/is-empty'
-const ProfilePage = ({ session }) => {
+import { Typography } from 'antd'
+import Image from 'next/image'
+import UserIcon from '@/assets/images/user-icon.png'
+import routeGuard from '@/utils/routeGuard'
+import { withSession } from '@/utils/sessionWrapper'
+
+const { Title } = Typography
+
+const ProfilePage = ({ user }) => {
 	return (
-		<div>
-			<h2>Profile</h2>
-			<span>{JSON.stringify(session)}</span>
-			<Button onClick={() => signOut()}>Sign Out</Button>
+		<div
+			style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+			<Image
+				src={UserIcon}
+				loader={() => user.profile_picture}
+				width={160}
+				height={160}
+				alt="profile-picture"
+				style={{ borderRadius: '50%' }}
+			/>
+			<Title level={2}>{user.username}</Title>
 		</div>
 	)
 }
-export const getServerSideProps = async ({ req }) => {
-	const session = await getSession({ req: req })
-	if (isEmpty(session?.auth?.accessToken)) {
-		return {
-			redirect: {
-				destination: '/signin',
-				permanent: false
-			}
-		}
-	}
 
-	return {
-		props: { session }
-	}
-}
+export const getServerSideProps = withSession(async ({ req }) => {
+	const accessToken = req.session?.auth?.access_token
+	const isLoggedIn = !!accessToken
+	const validator = [isLoggedIn]
+	return routeGuard(validator, '/login', {
+		props: { user: req.session.user }
+	})
+})
 export default ProfilePage
