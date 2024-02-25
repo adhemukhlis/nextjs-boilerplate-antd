@@ -4,7 +4,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
+import { ENCRYPTION_KEY } from '@/configs/keys'
 import errorModal from '@/utils/errorModal'
+import { hexEncrypt } from '@/utils/hexCipher'
 import isEmpty from '@/utils/isEmpty'
 import routeGuard from '@/utils/routeGuard'
 import { withSession } from '@/utils/sessionWrapper'
@@ -17,11 +19,13 @@ const RegisterPage = () => {
 	const handleSubmit = async (values) => {
 		setIsLoading(true)
 		const { username, email, gender, password, confirm_password } = values
+		const encryptedPassword = hexEncrypt(password, ENCRYPTION_KEY)
+		const encryptedConfirmPassword = hexEncrypt(confirm_password, ENCRYPTION_KEY)
 		return await axios
 			.request({
 				method: 'post',
 				url: '/api/auth/register',
-				data: { username, email, gender, password, confirm_password }
+				data: { username, email, gender, password: encryptedPassword, confirm_password: encryptedConfirmPassword }
 			})
 			.then((res) => {
 				if (res.status === 201) {

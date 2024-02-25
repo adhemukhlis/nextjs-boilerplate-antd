@@ -4,10 +4,11 @@ import axios from 'axios'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
-import ConditionalRender from '@/components/ConditionalRender'
+import { useEffect, useRef, useState } from 'react'
 import FormErrorPanel from '@/components/FormErrorPanel'
+import { ENCRYPTION_KEY } from '@/configs/keys'
 import asyncLocalStorage from '@/utils/asyncLocalStorage'
+import { hexEncrypt } from '@/utils/hexCipher'
 import isEmpty from '@/utils/isEmpty'
 import routeGuard from '@/utils/routeGuard'
 import { withSession } from '@/utils/sessionWrapper'
@@ -15,7 +16,7 @@ import { withSession } from '@/utils/sessionWrapper'
 const { Title } = Typography
 
 const LoginPage = () => {
-	const [errors, setErrors] = useState([])
+	const errorRef = useRef(null)
 	const router = useRouter()
 	const [form] = Form.useForm()
 	const [isLoading, setIsLoading] = useState(false)
@@ -25,14 +26,15 @@ const LoginPage = () => {
 	const handleSubmit = async (values) => {
 		setIsLoading(true)
 		const { email, password, remember_me } = values
+		const encryptedPassword = hexEncrypt(password, ENCRYPTION_KEY)
 		return await axios
 			.request({
 				method: 'post',
 				url: '/api/auth/login',
-				data: { email, password }
+				data: { email, password: encryptedPassword }
 			})
 			.then((res) => {
-				setErrors([])
+				errorRef.current.clearErrors()
 				if (res.status === 200) {
 					if (!!remember_me) {
 						asyncLocalStorage.setItem('_rm', email)
@@ -48,10 +50,11 @@ const LoginPage = () => {
 			})
 	}
 	const formErrorHandler = (error) => {
+		// setErrors([])
 		const message = error?.response?.data?.message || ''
 		const errors = error?.response?.data?.errors || []
 		if (message) {
-			setErrors((prev) => [...prev, { message, errors }])
+			errorRef.current.setError({ message, errors })
 		}
 	}
 	useEffect(() => {
@@ -128,11 +131,7 @@ const LoginPage = () => {
 													Login
 												</Button>
 											</Col>
-											<ConditionalRender condition={errors.length > 0}>
-												<Col span={24}>
-													<FormErrorPanel errorData={errors} />
-												</Col>
-											</ConditionalRender>
+											<FormErrorPanel ref={errorRef} />
 											<Col>
 												<Link href="/forgot-password">Forgot password</Link>
 											</Col>

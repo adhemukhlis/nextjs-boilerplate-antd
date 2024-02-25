@@ -35,7 +35,9 @@ export default class MyDocument extends Document {
 		return (
 			<Html>
 				<Head>
+					{/* eslint-disable */}
 					<title>{publicRuntimeConfig.AppName}</title>
+					{/* eslint-enable */}
 				</Head>
 				<body>
 					<Main />

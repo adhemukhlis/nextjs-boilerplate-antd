@@ -23,6 +23,7 @@ const mock = async (req, res) => {
 						data: {
 							username: user[0].username,
 							email: user[0].email,
+							profile_picture: `https://ui-avatars.com/api/?name=${user[0].username}`,
 							access_token: `access-token-${unix}`,
 							expired_at: expiredAt.toISOString()
 						}

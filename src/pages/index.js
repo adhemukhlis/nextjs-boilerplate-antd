@@ -1,5 +1,6 @@
 import routeGuard from '@/utils/routeGuard'
 import { withSession } from '@/utils/sessionWrapper'
+
 const RedirectEmpty = () => {
 	return <></>
 }

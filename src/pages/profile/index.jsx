@@ -12,7 +12,7 @@ const ProfilePage = ({ user }) => {
 			style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
 			<Image
 				src={UserIcon}
-				loader={() => user.picture}
+				loader={() => user.profile_picture}
 				width={160}
 				height={160}
 				alt="profile-picture"
