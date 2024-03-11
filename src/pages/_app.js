@@ -5,7 +5,7 @@ import { getIronSession } from 'iron-session'
 import App from 'next/app'
 import { Nunito } from 'next/font/google'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useEffect } from 'react'
 import LayoutComponent from '@/components/Layout'
 import PUBLIC_PAGE_URL from '@/configs/public-page-url'
 import sessionOptions from '@/utils/sessionOptions'
@@ -20,6 +20,9 @@ if (!process.browser) React.useLayoutEffect = React.useEffect
 
 const EntryPoint = ({ Component, pageProps, user }) => {
 	const router = useRouter()
+	useEffect(() => {
+		window.getVersion = () => alert('Build Hash : ' + window?.__NEXT_DATA__?.buildId)
+	}, [])
 	return (
 		<main className={nunito.className}>
 			<StyleProvider hashPriority="high">

@@ -1,5 +1,5 @@
 const withNextJsObfuscator = require('nextjs-obfuscator')(
-	{ disableConsoleOutput: false, debugProtection: true, ignoreImports:true },
+	{ disableConsoleOutput: false, debugProtection: true, ignoreImports: true },
 	{ enabled: 'detect', log: true }
 )
 
@@ -7,6 +7,9 @@ const withNextJsObfuscator = require('nextjs-obfuscator')(
 const nextConfig = withNextJsObfuscator({
 	publicRuntimeConfig: {
 		AppName: 'NextJS Boilerplate AntDesign'
+	},
+	generateBuildId: async () => {
+		return process.env.COMMIT_HASH
 	},
 	eslint: {
 		dirs: ['.']
