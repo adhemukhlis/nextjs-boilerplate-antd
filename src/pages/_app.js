@@ -18,7 +18,7 @@ const nunito = Nunito({
 
 if (!process.browser) React.useLayoutEffect = React.useEffect
 
-const EntryPoint = ({ Component, pageProps, user }) => {
+const EntryPoint = ({ Component, pageProps, username }) => {
 	const router = useRouter()
 	useEffect(() => {
 		window.getVersion = () => alert('Build Hash : ' + window?.__NEXT_DATA__?.buildId)
@@ -42,7 +42,7 @@ const EntryPoint = ({ Component, pageProps, user }) => {
 							<Component {...pageProps} />
 						</div>
 					) : (
-						<LayoutComponent user={user}>
+						<LayoutComponent username={username}>
 							<Component {...pageProps} />
 						</LayoutComponent>
 					)}
@@ -55,10 +55,8 @@ const EntryPoint = ({ Component, pageProps, user }) => {
 export default EntryPoint
 
 EntryPoint.getInitialProps = async (appContext) => {
-	let session = { user: { username: '' } }
-
-	session = await getIronSession(appContext.ctx.req, appContext.ctx.res, sessionOptions)
-
+	const session = await getIronSession(appContext.ctx.req, appContext.ctx.res, sessionOptions)
+	const username = session?.user?.username || ''
 	const pageProps = await App.getInitialProps(appContext)
-	return { ...pageProps, user: session.user }
+	return { ...pageProps, username: username }
 }

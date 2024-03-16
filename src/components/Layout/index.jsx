@@ -1,5 +1,5 @@
 import { UserOutlined } from '@ant-design/icons'
-import { Dropdown, Layout, Menu, theme, message, Avatar, Typography } from 'antd'
+import { Dropdown, Layout, Menu, theme, message, Avatar, Typography, Affix } from 'antd'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -10,9 +10,10 @@ import asyncLocalStorage from '@/utils/asyncLocalStorage'
 
 const { Content, Sider, Header } = Layout
 const { Text } = Typography
-const LayoutComponent = ({ children, user }) => {
+const LayoutComponent = ({ children, username }) => {
 	const [messageApi, contextHolder] = message.useMessage()
 	const [collapsed, setCollapsed] = useState(true)
+	const [rootFontSize, setRootFontSize] = useState(0)
 	const router = useRouter()
 	const {
 		token: { colorBgContainer }
@@ -48,7 +49,7 @@ const LayoutComponent = ({ children, user }) => {
 	const items = [
 		{
 			key: 'profile',
-			label: <Text strong>{user.username}</Text>,
+			label: <Text strong>{username}</Text>,
 			icon: <UserOutlined />,
 			onClick: () => router.push('/profile')
 		},
@@ -64,6 +65,7 @@ const LayoutComponent = ({ children, user }) => {
 			setCollapsed(JSON.parse(res ?? 'true'))
 		})
 	}, [])
+	const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) * 1
 	return (
 		<>
 			<Layout
@@ -82,8 +84,9 @@ const LayoutComponent = ({ children, user }) => {
 					<div
 						style={{
 							height: collapsed ? 100 : 40,
-							margin: 16,
-							background: colorBgContainer,
+							margin: '0.6rem',
+							// background: colorBgContainer,
+							backgroundColor:'violet',
 							display: 'flex',
 							justifyContent: 'center',
 							alignItems: 'center'
@@ -108,12 +111,14 @@ const LayoutComponent = ({ children, user }) => {
 									})}
 						/>
 					</div>
-					<Menu theme="light" defaultSelectedKeys={[currentPath]} mode="inline" items={menus} onSelect={handleSelectMenu} />
+					<Affix offsetTop={rootFontSize}>
+						<Menu theme="light" defaultSelectedKeys={[currentPath]} mode="inline" items={menus} onSelect={handleSelectMenu} />
+					</Affix>
 				</Sider>
 				<Layout>
 					<Header style={{ padding: '1rem', background: colorBgContainer, display: 'flex', justifyContent: 'flex-end' }}>
 						<Dropdown menu={{ items }} placement="bottomRight" arrow trigger={['click']}>
-							<Avatar size="large" style={{ cursor: 'pointer' }} src={`https://ui-avatars.com/api/?name=${user?.username}`} />
+							<Avatar size="large" style={{ cursor: 'pointer' }} src={`https://ui-avatars.com/api/?name=${username}`} />
 						</Dropdown>
 					</Header>
 					<Content
